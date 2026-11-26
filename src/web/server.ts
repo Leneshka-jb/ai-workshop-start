@@ -3,7 +3,8 @@
 import { createServer, type Server } from 'node:http';
 import { AtlasError } from '../core/errors.ts';
 import { filterSkills } from '../core/filter.ts';
-import { openGitHub, parseGitHubUrl, type Fetch } from '../core/github.ts';
+import { openGitHub, openOrganization, parseGitHubOwnerUrl, parseGitHubUrl, type Fetch } from '../core/github.ts';
+import { scanOrganization } from '../core/organization.ts';
 import { scan } from '../core/scan.ts';
 import { PAGE } from './page.ts';
 
@@ -17,7 +18,8 @@ export type WebOptions = {
 
 /**
  * `GET /`: the page. `GET /api/scan?repo=<GitHub URL>[&filter=<text>]`: the scan result as JSON,
- * the skills that match the filter and the total before filtering. Nothing is stored.
+ * the skills that match the filter and the total before filtering.
+ * `GET /api/organization?org=<GitHub URL>`: its repositories and their skill counts. Nothing is stored.
  * No request can stop the server: an unreadable URL is a 400, anything unexpected a 500.
  * Only requests addressed to this server are answered: any other Host header is a 421, so a
  * page that rebinds its own domain to this address cannot scan with the token.
@@ -62,13 +64,26 @@ async function handle(method: string | undefined, target: string | undefined, op
 
   if (method !== 'GET') return json(405, { error: 'Method not allowed' });
   if (url.pathname === '/') return send(200, 'text/html', PAGE);
-  if (url.pathname !== '/api/scan') return json(404, { error: 'Not found' });
+  if (url.pathname === '/api/scan') {
+    const repo = url.searchParams.get('repo')?.trim() ?? '';
+    if (!parseGitHubUrl(repo)) return json(400, { error: `Not a GitHub repository URL: ${repo}` });
+    return answer(json, async () => {
+      const { repository, skills, warnings } = await scan(await openGitHub(repo, options));
+      return { repository, skills: filterSkills(skills, url.searchParams.get('filter') ?? ''), total: skills.length, warnings };
+    });
+  }
+  if (url.pathname === '/api/organization') {
+    const org = url.searchParams.get('org')?.trim() ?? '';
+    if (!parseGitHubOwnerUrl(org)) return json(400, { error: `Not a GitHub organization URL: ${org}` });
+    return answer(json, async () => scanOrganization(await openOrganization(org, options)));
+  }
+  return json(404, { error: 'Not found' });
+}
 
-  const repo = url.searchParams.get('repo')?.trim() ?? '';
-  if (!parseGitHubUrl(repo)) return json(400, { error: `Not a GitHub repository URL: ${repo}` });
+/** The result as JSON; an explained failure is a 502 with its message, anything else goes up as a 500. */
+async function answer(json: Json, work: () => Promise<unknown>) {
   try {
-    const { repository, skills, warnings } = await scan(await openGitHub(repo, options));
-    json(200, { repository, skills: filterSkills(skills, url.searchParams.get('filter') ?? ''), total: skills.length, warnings });
+    json(200, await work());
   } catch (error) {
     if (!(error instanceof AtlasError)) throw error;
     json(502, { error: error.message });

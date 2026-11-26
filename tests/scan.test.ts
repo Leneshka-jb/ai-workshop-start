@@ -93,6 +93,26 @@ test('rate limit → a message that asks for GITHUB_TOKEN', async () => {
   });
 });
 
+test('with a token, a private repository\'s files are read with it', async () => {
+  const commit = '0123456789abcdef0123456789abcdef01234567';
+  const recorded = replay({
+    'https://api.github.com/repos/acme/secret': { status: 200, body: { full_name: 'acme/secret', default_branch: 'main' } },
+    'https://api.github.com/repos/acme/secret/commits/main': { status: 200, body: { sha: commit } },
+    [`https://api.github.com/repos/acme/secret/git/trees/${commit}?recursive=1`]: {
+      status: 200,
+      body: { truncated: false, tree: [{ path: 'SKILL.md', mode: '100644', type: 'blob', sha: 'b' }] },
+    },
+    [`https://raw.githubusercontent.com/acme/secret/${commit}/SKILL.md`]: { status: 200, body: '---\nname: secret\n---\n' },
+  });
+  // A private repository: not found without the token, on the API and on raw.githubusercontent.com alike.
+  const fetch: typeof recorded = async (url, init) => init?.headers?.Authorization === 'Bearer t'
+    ? recorded(url, init)
+    : new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 });
+  const result = await scan(await openGitHub('https://github.com/acme/secret', { fetch, token: 't' }));
+  assert.deepEqual(result.skills.map((skill) => skill.name), ['secret']);
+  assert.deepEqual(result.warnings, []);
+});
+
 test('token refused for SAML SSO → the public repository scans without it', async () => {
   const commit = '0123456789abcdef0123456789abcdef01234567';
   const recorded = replay({
