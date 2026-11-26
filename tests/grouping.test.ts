@@ -36,9 +36,6 @@ function recordedRepository(files: Record<string, string | undefined>) {
       status: 200,
       body: { truncated: false, tree: paths.map((path) => ({ path, mode: '100644', type: 'blob', sha: 'unused' })) },
     },
-    [`https://api.github.com/search/code?q=filename:SKILL.md+repo:${repository}&per_page=100&page=1`]: {
-      status: 200, body: { total_count: paths.length, items: paths.map((path) => ({ path })) },
-    },
   };
   for (const [path, body] of Object.entries(files)) {
     const encoded = path.split('/').map(encodeURIComponent).join('/');
@@ -155,7 +152,7 @@ test('empty files are valid grouping inputs and retain a warning for each source
   assert.deepEqual(result.warnings, ['a', 'b'].map((name) => `${name}/SKILL.md: no front matter; using the directory name`));
 });
 
-test('GitHub groups copies and pins every link without extra requests, through search and tree discovery', async () => {
+test('GitHub groups copies and pins every link without extra requests, with and without a token', async () => {
   for (const token of ['test', undefined]) {
     const github = recordedRepository({ 'z/SKILL.md': CONTENT, 'a space #/SKILL.md': CONTENT });
     const result = await scan(await openGitHub(github.url, { fetch: github.fetch, token }));

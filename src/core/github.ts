@@ -1,5 +1,5 @@
 import { AtlasError } from './errors.ts';
-import { SKILL_ROOTS } from './find.ts';
+import { SKIPPED_DIRECTORIES } from './find.ts';
 import type { Source } from './scan.ts';
 
 /** The part of `fetch` the core uses, so tests and the browser can pass their own. */
@@ -7,7 +7,7 @@ export type Fetch = (url: string, init?: { headers?: Record<string, string> }) =
 
 export type GitHubOptions = {
   fetch: Fetch;
-  /** With a token, skills are found through code search; without it, through the tree. */
+  /** Optional authentication for a higher GitHub API rate limit. */
   token?: string;
 };
 
@@ -31,58 +31,29 @@ export async function openGitHub(input: string, options: GitHubOptions): Promise
   );
   const id = info.full_name;
   const { sha } = await github.json<{ sha: string }>(`${API}/repos/${id}/commits/${encodePath(info.default_branch)}`);
-  const warnings: string[] = [];
-  const paths = options.token ? await searchPaths(github, id) : await treePaths(github, id, sha, warnings);
+  const paths = await treePaths(github, id, sha);
   const [organization, repo] = id.split('/');
   return {
     repository: { id, organization, name: repo, url: `https://github.com/${id}`, commit: sha },
     paths,
-    warnings,
+    warnings: [],
     read: (path) => github.raw(`${RAW}/${id}/${sha}/${encodePath(path)}`),
   };
 }
 
-/** Code search looks at the whole default branch, 100 results a page. */
-async function searchPaths(github: Client, id: string): Promise<string[]> {
-  const paths = new Set<string>(); // pages can repeat a result
-  // GitHub returns at most 1000 results: ten pages.
-  for (let page = 1; page <= 10; page++) {
-    const result = await github.json<{ total_count: number; items: { path: string }[] }>(
-      `${API}/search/code?q=filename:SKILL.md+repo:${id}&per_page=100&page=${page}`,
-    );
-    for (const item of result.items) paths.add(item.path);
-    if (result.items.length < 100 || page * 100 >= result.total_count) break;
-  }
-  return [...paths];
-}
-
 type Tree = { truncated: boolean; tree: { path: string; mode: string; type: string; sha: string }[] };
 
-/** The whole tree at once, or only the skill roots when it is too large for one answer. */
-async function treePaths(github: Client, id: string, sha: string, warnings: string[]): Promise<string[]> {
+/** List the pinned tree, splitting oversized trees until every directory is covered. */
+async function treePaths(github: Client, id: string, sha: string): Promise<string[]> {
   const tree = await github.json<Tree>(`${API}/repos/${id}/git/trees/${sha}?recursive=1`);
   if (!tree.truncated) return files(tree);
-  warnings.push(`the tree is too large to list at once; looked only in ${SKILL_ROOTS.join(', ')} (GITHUB_TOKEN searches everywhere)`);
-  const paths: string[] = [];
-  for (const root of SKILL_ROOTS) {
-    const rootSha = await directory(github, id, sha, root);
-    if (!rootSha) continue;
-    const subtree = await github.json<Tree>(`${API}/repos/${id}/git/trees/${rootSha}?recursive=1`);
-    paths.push(...files(subtree).map((path) => `${root}/${path}`));
-  }
-  return paths;
-}
-
-/** Walks down one level at a time; the directory's tree, or undefined if it does not exist. */
-async function directory(github: Client, id: string, sha: string, path: string): Promise<string | undefined> {
-  let current = sha;
-  for (const segment of path.split('/')) {
-    const tree = await github.json<Tree>(`${API}/repos/${id}/git/trees/${current}`);
-    const entry = tree.tree.find((item) => item.path === segment && item.type === 'tree');
-    if (!entry) return undefined;
-    current = entry.sha;
-  }
-  return current;
+  // A truncated recursive answer may omit entire subtrees; start again with all immediate entries.
+  const shallow = await github.json<Tree>(`${API}/repos/${id}/git/trees/${sha}`);
+  if (shallow.truncated) throw new AtlasError(`GitHub returned an incomplete directory listing for ${id} at ${sha}`);
+  const subtrees = await Promise.all(shallow.tree
+    .filter((entry) => entry.type === 'tree' && !SKIPPED_DIRECTORIES.has(entry.path))
+    .map(async (entry) => (await treePaths(github, id, entry.sha)).map((path) => `${entry.path}/${path}`)));
+  return files(shallow).concat(subtrees.flat());
 }
 
 /** Regular files only: a symbolic link's content is its target, not a SKILL.md. */
@@ -95,7 +66,7 @@ type Client = ReturnType<typeof client>;
 function client({ fetch, token }: GitHubOptions) {
   const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
   if (token) headers.Authorization = `Bearer ${token}`;
-  const answers = new Map<string, Promise<unknown>>(); // the root tree is asked for once per skill root
+  const answers = new Map<string, Promise<unknown>>(); // identical subtrees can occur at multiple paths
 
   async function get(url: string, init?: { headers: Record<string, string> }): Promise<Response> {
     try {

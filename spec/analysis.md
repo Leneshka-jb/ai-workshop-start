@@ -6,6 +6,12 @@ Equality is byte-for-byte, without normalizing whitespace, line endings, or fron
 ## Input
 A **GitHub repository** URL, or a local directory
 Each scan groups files within that one input; results are not merged across scans.
+## Search scope
+Search the whole project recursively for `SKILL.md` files, including the project root and all nested and hidden directories.
+Skip `.git` and `node_modules` directories at every depth. Only regular files named exactly `SKILL.md` are skills; do not follow symbolic links.
+Skills may be located anywhere in the project; discovery is not limited to conventional skill directories such as `.agents/skills` or `.claude/skills`.
+This scope applies to both GitHub repositories and local directories.
+GitHub discovery uses the scanned commit's tree, with or without a token. If a recursive listing is truncated, traverse its subtrees until the whole search scope is covered; do not return a partial scan if a directory cannot be fully listed.
 ## Output
 Each skill: **name**, **description**, **links** (one or more)
 ## Architecture
