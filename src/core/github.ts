@@ -64,8 +64,10 @@ function files(tree: Tree): string[] {
 type Client = ReturnType<typeof client>;
 
 function client({ fetch, token }: GitHubOptions) {
-  const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
-  if (token) headers.Authorization = `Bearer ${token}`;
+  const accept = { Accept: 'application/vnd.github+json' };
+  // Cleared when an organization refuses the token for SAML SSO: its public repositories
+  // still answer without one, so the rest of the scan goes on anonymously.
+  let authorization = token ? `Bearer ${token}` : undefined;
   const answers = new Map<string, Promise<unknown>>(); // identical subtrees can occur at multiple paths
 
   async function get(url: string, init?: { headers: Record<string, string> }): Promise<Response> {
@@ -76,18 +78,34 @@ function client({ fetch, token }: GitHubOptions) {
     }
   }
 
-  async function request(url: string, notFound: string): Promise<unknown> {
-    const response = await get(url, { headers });
-    if (response.ok) return response.json();
+  async function failure(response: Response): Promise<{ status: number; text: string }> {
     const body: unknown = await response.json().catch(() => undefined);
     const message = (body as { message?: unknown } | undefined)?.message;
-    const text = typeof message === 'string' ? message : '';
-    if (response.status === 404) throw new AtlasError(notFound);
-    if ((response.status === 403 || response.status === 429) && /rate limit/i.test(text)) {
-      throw new AtlasError(`GitHub rate limit reached; ${token ? 'try again in a minute' : 'set GITHUB_TOKEN'}`);
+    return { status: response.status, text: typeof message === 'string' ? message : '' };
+  }
+
+  async function request(url: string, notFound: string): Promise<unknown> {
+    const sent = authorization;
+    let response = await get(url, { headers: sent ? { ...accept, Authorization: sent } : accept });
+    if (response.ok) return response.json();
+    let { status, text } = await failure(response);
+    if (sent && status === 403 && /SAML/i.test(text)) {
+      authorization = undefined;
+      response = await get(url, { headers: accept });
+      if (response.ok) return response.json();
+      ({ status, text } = await failure(response));
+      if (status === 404) {
+        throw new AtlasError(`${notFound}; if it is private, authorize GITHUB_TOKEN for the organization's SAML SSO`);
+      }
     }
-    if (response.status === 401) throw new AtlasError('GitHub rejected the token in GITHUB_TOKEN');
-    throw new AtlasError(`GitHub answered ${response.status} for ${url}${text && `: ${text}`}`);
+    if (status === 404) throw new AtlasError(notFound);
+    if ((status === 403 || status === 429) && /rate limit/i.test(text)) {
+      const advice = authorization ? 'try again in a minute'
+        : token ? "authorize GITHUB_TOKEN for the organization's SAML SSO" : 'set GITHUB_TOKEN';
+      throw new AtlasError(`GitHub rate limit reached; ${advice}`);
+    }
+    if (status === 401) throw new AtlasError('GitHub rejected the token in GITHUB_TOKEN');
+    throw new AtlasError(`GitHub answered ${status} for ${url}${text && `: ${text}`}`);
   }
 
   return {
