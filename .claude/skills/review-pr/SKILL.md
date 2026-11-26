@@ -13,6 +13,13 @@ The target is a PR number or URL, a branch, or the current working-tree diff whe
 - Branch: `git diff main...<branch>`; current changes: `git diff main` plus untracked files.
 - Read the PR description: what behaviour does it claim to change?
 
+## 1a. Recheck previous reviews
+
+For a PR, collect earlier findings: `gh pr view <n> --json reviews,comments` and
+`gh api repos/{owner}/{repo}/pulls/<n>/comments` (inline comments, with `path` and `line`).
+Recheck each against the current head. Fold every issue that still holds into this review as a
+normal finding, tagged `(prev)`. Drop those that are fixed or outdated; do not list them.
+
 ## 2. Check it against the spec
 
 Read [spec/](../../../spec/) first. The spec is the source of truth.
@@ -58,8 +65,21 @@ filesystem or API order, decoding that is not UTF-8, and leftover debug output o
 
 ## 6. Report
 
-Group findings by severity — **blocking** (spec violation, failing check, bug), **should fix**
-(missing test, spec drift), **nit**. For each: `file:line`, what is wrong, a concrete failing
-scenario, and a suggested fix. End with a verdict: approve, or request changes.
+Keep it short: no summary of the PR, no praise, no list of what was checked. Only findings,
+grouped by severity — **blocking** (spec violation, failing check, bug), **should fix** (missing
+test, spec drift), **nit**. Each finding is at most a few lines:
+
+```
+- `src/core/scan.ts:42` (prev) — symlinked dirs are followed, spec says not to.
+  Repro: `ln -s .. fixture/loop && ./skill-atlas scan ./fixture` → hangs / duplicate links.
+  Fix: skip entries where `lstat().isSymbolicLink()`.
+```
+
+- **Where:** `file:line` in the PR's code.
+- **Repro:** an exact command, test or input and what it gives versus what the spec expects.
+  Do not report a finding without one.
+- **Fix:** one line.
+
+End with one line: `Verdict: approve` or `Verdict: request changes`. No findings → just the verdict.
 
 Post comments to GitHub only when the user asks (`gh pr review <n> --comment|--request-changes|--approve -b ...`).
