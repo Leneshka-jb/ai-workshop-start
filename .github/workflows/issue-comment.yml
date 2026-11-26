@@ -1,0 +1,42 @@
+# `/scan <GitHub URL>` in an issue or pull request comment: Skill Atlas scans the repository and
+# replies with the result. See spec/action.md.
+name: Issue comment
+on:
+  issue_comment:
+    types: [created]
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+concurrency:
+  group: issue-comment-${{ github.event.comment.id }}
+jobs:
+  scan:
+    # Only scan commands from people with write access to this repository; never from bots.
+    if: >-
+      startsWith(github.event.comment.body, '/scan')
+      && github.event.comment.user.type != 'Bot'
+      && contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # The comment is untrusted: it reaches the script only through the environment.
+      - name: Scan
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node src/action/main.ts > "$RUNNER_TEMP/reply.md"
+      - name: Reply
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.issue.number }}
+        run: |
+          if [ -s "$RUNNER_TEMP/reply.md" ]; then
+            gh issue comment "$NUMBER" --repo "$GITHUB_REPOSITORY" --body-file "$RUNNER_TEMP/reply.md"
+          fi
