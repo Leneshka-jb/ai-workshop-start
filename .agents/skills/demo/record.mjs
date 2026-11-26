@@ -1,5 +1,5 @@
 // Records a short video of the web view: an organization scan (issue #5), then the skill filter (issue #2).
-// Usage: node .claude/skills/demo/record.mjs [org URL] [filter]   (run from the repository root)
+// Usage: node .agents/skills/demo/record.mjs [org URL] [filter]   (run from the repository root)
 import { spawn } from 'node:child_process';
 import { mkdirSync, renameSync } from 'node:fs';
 import { join } from 'node:path';

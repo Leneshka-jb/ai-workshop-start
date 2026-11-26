@@ -11,7 +11,7 @@ Integration tests for every case in the spec.
 - `npm test`: the tests
 
 ## Skills
-- [demo](.claude/skills/demo/SKILL.md): record a short video of the web view (organization scan and filter) into `docs/demo/`
+- [demo](.agents/skills/demo/SKILL.md): record a short video of the web view (organization scan and filter) into `docs/demo/`
 
 ## Memory
 - Notes are stored in [memory/](memory/); search them when relevant context is needed.

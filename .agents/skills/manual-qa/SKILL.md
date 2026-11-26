@@ -14,7 +14,7 @@ Tools in this directory:
   read its output. Run it with no arguments for the command list.
 - [report.mjs](report.mjs) builds the report from the sessions, publishes the videos and comments on the PR.
 
-Below, `QA` stands for `node <repo>/.claude/skills/manual-qa/qa.mjs`, written out in full in each call.
+Below, `QA` stands for `node <repo>/.agents/skills/manual-qa/qa.mjs`, written out in full in each call.
 
 ## 1. Set up
 
@@ -91,7 +91,7 @@ QA stop                                      # writes /tmp/manual-qa/out/<name>.
 ## 3. Report on the PR
 
 ```bash
-node .claude/skills/manual-qa/report.mjs --pr <n> --sha <headRefOid>
+node .agents/skills/manual-qa/report.mjs --pr <n> --sha <headRefOid>
 ```
 
 What it does:

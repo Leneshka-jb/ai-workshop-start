@@ -34,7 +34,7 @@ Run from the repository root.
 3. Record. Optional arguments: an organization URL (default `https://github.com/Leneshka-jb`; it must own an
    `ai-workshop-start` repository) and a filter text (default `review`).
    ```bash
-   node .claude/skills/demo/record.mjs
+   node .agents/skills/demo/record.mjs
    rmdir docs/demo/.recording 2>/dev/null
    ```
    It prints each status line and the path of the video.

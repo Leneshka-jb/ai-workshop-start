@@ -1,0 +1,1 @@
+[2026-11-26] [Decision] Repository workflow skills live in `.agents/skills/`, including demo, manual-qa and review-pr with their companion scripts. Use this location in commands and documentation. Scanner fixtures and external examples may still use `.claude/skills/` because discovery supports skills anywhere.
