@@ -253,8 +253,8 @@ test('the page: one path segment is an organization; anything else is scanned as
   const cases = {
     'https://github.com/Acme': '/api/organization?org=https%3A%2F%2Fgithub.com%2FAcme',
     'https://github.com/Acme/': '/api/organization?org=https%3A%2F%2Fgithub.com%2FAcme%2F',
-    'https://github.com/Acme/agents': '/api/scan?repo=https%3A%2F%2Fgithub.com%2FAcme%2Fagents&filter=',
-    'github.com/Acme': '/api/scan?repo=github.com%2FAcme&filter=',
+    'https://github.com/Acme/agents': '/api/scan?repo=https%3A%2F%2Fgithub.com%2FAcme%2Fagents',
+    'github.com/Acme': '/api/scan?repo=github.com%2FAcme',
   };
   for (const [input, request] of Object.entries(cases)) {
     const { requested } = await page(input, (url) => (url.startsWith('/api/organization') ? ORGANIZATION : SCAN));
@@ -262,9 +262,10 @@ test('the page: one path segment is an organization; anything else is scanned as
   }
 });
 
-test('the page: a repository\'s Scan button scans that repository', async () => {
+test('the page: a repository\'s Scan button scans that repository; the filter shows for it, not for the organization', async () => {
   const { requested, elements } = await page('https://github.com/Acme', (url) => (url.startsWith('/api/organization') ? ORGANIZATION : SCAN));
   assert.equal(elements.status.textContent, 'Acme · 2 repositories');
+  assert.equal(elements.filter.hidden, true, 'no filter for an organization');
   const rows = elements.skills.children;
   assert.deepEqual(rows.map((row) => row.children.map((child) => child.textContent)), [
     ['Acme/agents', '1 skill', 'Scan'],
@@ -274,6 +275,7 @@ test('the page: a repository\'s Scan button scans that repository', async () => 
   for (const listener of button.listeners.click) listener({ preventDefault() {} });
   await submitted; // the click submits the form
   assert.equal(elements.repo.value, 'https://github.com/Acme/agents');
-  assert.equal(requested.at(-1), '/api/scan?repo=https%3A%2F%2Fgithub.com%2FAcme%2Fagents&filter=');
+  assert.equal(requested.at(-1), '/api/scan?repo=https%3A%2F%2Fgithub.com%2FAcme%2Fagents');
   assert.equal(elements.status.textContent, 'Acme/agents · No skills found');
+  assert.equal(elements.filter.hidden, false, 'the filter, under the repository header');
 });

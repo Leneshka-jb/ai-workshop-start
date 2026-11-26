@@ -110,6 +110,11 @@ class Node {
 
 /** Loads the served page's script, types into its inputs, submits, and returns the header and skill names. */
 async function page(base: string, repo: string, filter: string) {
+  return (await open(base, repo, filter)).seen();
+}
+
+/** The page after a scan of `repo` with `filter` already typed; `type` changes the filter as a keystroke would. */
+async function open(base: string, repo: string, filter = '') {
   const html = await (await fetch(base)).text();
   const script = /<script>([\s\S]*)<\/script>/.exec(html)![1];
   const nodes: Record<string, Node> = {
@@ -122,22 +127,86 @@ async function page(base: string, repo: string, filter: string) {
   };
   const document = { getElementById: (id: string) => nodes[id], createElement: (tag: string) => new Node(tag) };
   let done!: Promise<unknown>;
-  runInNewContext(script, { document, fetch: (path: string) => (done = fetch(base + path)) });
+  const requested: string[] = [];
+  let filterHiddenWhileScanning: boolean | undefined;
+  runInNewContext(script, {
+    URL, document,
+    fetch: (path: string) => { requested.push(path); filterHiddenWhileScanning = nodes.filter.hidden; return (done = fetch(base + path)); },
+  });
   nodes.repo.value = repo;
   nodes.filter.value = filter;
   await nodes.form.listeners.submit({ preventDefault() {} });
   await done;
-  return {
+  const seen = () => ({
     status: nodes.status.textContent,
     error: nodes.status.className === 'error',
     skills: nodes.skills.children.map((card) => card.children[0].textContent),
     warnings: nodes.warnings.hidden ? '' : nodes.warnings.parts.summary.textContent,
+  });
+  const type = (text: string) => {
+    nodes.filter.value = text;
+    nodes.filter.listeners.input?.({ preventDefault() {} });
+    return seen();
   };
+  return { seen, type, requested, nodes, filterHiddenWhileScanning };
 }
 
-test('GET / → a second input, for the filter', async (t) => {
+test('GET / → a second input, for the filter, under the header and outside the form, with no button', async (t) => {
   const html = await (await fetch(await serve(t))).text();
-  assert.match(html, /<input id="filter"[^>]*type="search"/);
+  assert.match(html, /<input id="filter"[^>]*type="search"[^>]*hidden>/);
+  // The form holds the link and its Scan button only; the filter comes right after the header.
+  const form = /<form id="form">([\s\S]*?)<\/form>/.exec(html)![1];
+  assert.doesNotMatch(form, /id="filter"/);
+  assert.equal(form.match(/<button/g)?.length, 1);
+  assert.match(html, /<div id="status" role="status"><\/div>\n<input id="filter"/);
+  // Smaller than the link input, and without the browser's clear button.
+  assert.match(html, /#filter \{[^}]*font-size: \.85rem;/);
+  assert.match(html, /#filter::-webkit-search-cancel-button \{[^}]*display: none;/);
+});
+
+test('page: the filter is hidden while scanning, then shown under the header of the repository', async (t) => {
+  const { nodes, filterHiddenWhileScanning } = await open(await serve(t), 'https://github.com/JetBrains/many');
+  assert.equal(filterHiddenWhileScanning, true);
+  assert.equal(nodes.filter.hidden, false);
+});
+
+test('page: typing filters the last scan at every keystroke, without scanning again', async (t) => {
+  const { type, requested, seen } = await open(await serve(t), 'https://github.com/JetBrains/many');
+  assert.deepEqual(requested, ['/api/scan?repo=https%3A%2F%2Fgithub.com%2FJetBrains%2Fmany']);
+  assert.equal(seen().status, 'JetBrains/many · 4 skills');
+  assert.deepEqual(type('rev'), {
+    status: 'JetBrains/many · 1 of 4 skills', error: false, skills: ['review'], warnings: '1 warning',
+  });
+  assert.deepEqual(type(' RELEASE '), {
+    status: 'JetBrains/many · 2 of 4 skills', error: false, skills: ['Release-Notes', 'review'], warnings: '1 warning',
+  });
+  assert.deepEqual(type('changelog').skills, ['Release-Notes']);
+  assert.deepEqual(type('deploy'), {
+    status: 'JetBrains/many · No matching skills', error: false, skills: [], warnings: '1 warning',
+  });
+  assert.deepEqual(type(''), {
+    status: 'JetBrains/many · 4 skills', error: false, skills: ['Release-Notes', 'broken', 'commits', 'review'], warnings: '1 warning',
+  });
+  assert.equal(requested.length, 1);
+});
+
+test('page: the filter text is kept for the next scan and applied to it', async (t) => {
+  const { type, nodes, seen } = await open(await serve(t), 'https://github.com/JetBrains/empty');
+  type('review');
+  assert.equal(seen().status, 'JetBrains/empty · No skills found');
+  nodes.repo.value = 'https://github.com/JetBrains/many';
+  await nodes.form.listeners.submit({ preventDefault() {} });
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.equal(nodes.filter.value, 'review');
+  assert.deepEqual(seen().skills, ['review']);
+  assert.equal(seen().status, 'JetBrains/many · 1 of 4 skills');
+});
+
+test('page: an error hides the filter', async (t) => {
+  const { nodes, seen } = await open(await serve(t), 'https://gitlab.com/owner/repo', 'review');
+  assert.equal(seen().error, true);
+  assert.equal(seen().status, 'Not a GitHub repository URL: https://gitlab.com/owner/repo');
+  assert.equal(nodes.filter.hidden, true);
 });
 
 test('page: an empty filter → `<owner>/<repo> · N skills` and every skill', async (t) => {

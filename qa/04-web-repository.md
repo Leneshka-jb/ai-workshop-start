@@ -10,8 +10,8 @@ Spec: [web.md](../spec/web.md).
 
 **Expected**
 1. `Skill Atlas web view: http://localhost:3000`; the page shows a link input
-   (placeholder `https://github.com/owner/repo or https://github.com/owner`), a filter input
-   (`Filter by name or description`) and a **Scan** button.
+   (placeholder `https://github.com/owner/repo or https://github.com/owner`) and a **Scan** button;
+   no filter input yet (it appears under the header of a scanned repository, see 05).
 2. `…http://localhost:3123`.
 3. The second one fails with `Cannot start the web view: …EADDRINUSE…`, exit code `1`; the first keeps running.
 
@@ -21,11 +21,11 @@ Spec: [web.md](../spec/web.md).
 **Expected**: the connection is refused.
 
 ## 4.3 Scan a repository
-**Steps**: enter `https://github.com/JetBrains/kotlin`, leave the filter empty, click **Scan**.
+**Steps**: enter `https://github.com/JetBrains/kotlin`, click **Scan**.
 
 **Expected**
 - While scanning: `Scanning…`, the button is disabled.
-- Then the header `JetBrains/kotlin · N skills`, and one card per skill, in the CLI's order (compare with 03 · 3.1):
+- Then the header `JetBrains/kotlin · N skills`, a small filter input under it, and one card per skill, in the CLI's order (compare with 03 · 3.1):
   the name as a heading, the **full** description (not just the first sentence), and each link labelled with its path.
 - Clicking a link opens the pinned file on GitHub in a new tab.
 

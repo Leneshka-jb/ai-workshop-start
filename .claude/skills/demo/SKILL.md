@@ -10,7 +10,7 @@ Chromium with Playwright and records the page:
 
 1. **Organization scan** (#5): types `https://github.com/Leneshka-jb`, *Scan* → `Leneshka-jb · N repositories`, each with its skill count.
 2. Clicks *Scan* on `Leneshka-jb/ai-workshop-start` → `… · 6 skills`.
-3. **Filter** (#2): types `review`, Enter → `… · 2 of 6 skills`.
+3. **Filter** (#2, #11): types `review` in the filter under the header; it applies as you type → `… · 2 of 6 skills`.
 4. Filter `no-such-skill` → `… · No matching skills`.
 
 The video (~25 s, 1280×800, WebM) is written to `docs/demo/<YYYY-MM-DD-hh:mm:ss>-demo.webm`, local time
