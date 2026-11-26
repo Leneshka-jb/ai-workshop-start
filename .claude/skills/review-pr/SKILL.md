@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Review a pull request against this repository's spec, tests and definition of done. Use when asked to review a PR, a branch or the current diff.
+description: Review a pull request against this repository's spec, tests and definition of done. Posts the result as a comment on the PR. Use when asked to review a PR, a branch or the current diff.
 ---
 
 # Review a pull request
@@ -82,4 +82,14 @@ test, spec drift), **nit**. Each finding is at most a few lines:
 
 End with one line: `Verdict: approve` or `Verdict: request changes`. No findings → just the verdict.
 
-Post comments to GitHub only when the user asks (`gh pr review <n> --comment|--request-changes|--approve -b ...`).
+## 7. Post to the PR
+
+When the target is a PR, post the report from step 6 as one comment on it, unchanged:
+
+```bash
+gh pr comment <n> --body-file review.md
+```
+
+Write `review.md` outside the repository (e.g. under `/tmp`) so it is never committed. Show the
+same report in the chat with the link `gh` prints. A later review rechecks this comment in step 1a.
+For a branch or the current diff there is no PR: only show the report in the chat.
