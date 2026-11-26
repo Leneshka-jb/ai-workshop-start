@@ -3,7 +3,7 @@
 `GITHUB_TOKEN`, optional, as for the CLI. *Nothing is stored.*
 ## Page
 `GET /`: an input for a **GitHub repository link**, a second input to **filter** the skills by text, and a *Scan* button.
-After a scan, the page shows `<owner>/<repo> · N skills`, then each skill as in [analysis](analysis.md):
+After a scan, the page shows the header described in [Filter](#filter), then each skill as in [analysis](analysis.md):
 - **name**, the full **description** (if any), and every **link**, labelled with its path, opening the pinned GitHub file
 - Same grouping and order as the CLI; warnings in a collapsed list below the skills
 - Any error replaces the result with its message

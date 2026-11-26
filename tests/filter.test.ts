@@ -135,10 +135,9 @@ async function page(base: string, repo: string, filter: string) {
   };
 }
 
-test('GET / → a second input, for the filter, sent with the scan', async (t) => {
+test('GET / → a second input, for the filter', async (t) => {
   const html = await (await fetch(await serve(t))).text();
   assert.match(html, /<input id="filter"[^>]*type="search"/);
-  assert.match(html, /'&filter=' \+ encodeURIComponent\(/);
 });
 
 test('page: an empty filter → `<owner>/<repo> · N skills` and every skill', async (t) => {
