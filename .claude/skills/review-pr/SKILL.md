@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Review a pull request against this repository's spec, tests and definition of done. Posts the result as a comment on the PR. Use when asked to review a PR, a branch or the current diff.
+description: Review a pull request against this repository's spec, tests and definition of done. Posts the result as a comment on the PR and labels an approved PR "Ready for qa". Use when asked to review a PR, a branch or the current diff.
 ---
 
 # Review a pull request
@@ -93,3 +93,16 @@ gh pr comment <n> --body-file review.md
 Write `review.md` outside the repository (e.g. under `/tmp`) so it is never committed. Show the
 same report in the chat with the link `gh` prints. A later review rechecks this comment in step 1a.
 For a branch or the current diff there is no PR: only show the report in the chat.
+
+## 8. Label an approved PR
+
+When the target is a PR and the verdict is `approve`, add the `Ready for qa` label:
+
+```bash
+gh label create "Ready for qa" --description "Approved by review, ready for QA" 2>/dev/null || true
+gh pr edit <n> --add-label "Ready for qa"
+```
+
+On `request changes`, remove it if a previous review added it:
+`gh pr edit <n> --remove-label "Ready for qa"` (ignore the error if it is not there).
+Mention the label change in the chat.
