@@ -1,6 +1,6 @@
 ---
 name: issue-to-pr
-description: Implement a GitHub issue end to end — spec, code and integration tests — and open a pull request for it. Use when asked to fix, implement or "do" an issue by number or URL.
+description: Implement a GitHub issue end to end — spec, code and integration tests — and open a pull request for it. Always posts the result as a comment on the issue. Use when asked to fix, implement or "do" an issue by number or URL.
 ---
 
 # Issue → pull request
@@ -16,7 +16,7 @@ gh issue view <n> --json number,title,body,labels,comments,url
 - Restate the requested behaviour in one or two sentences, including the comments: later comments
   often narrow or change the request.
 - If the issue is ambiguous or contradicts the spec, stop and ask before writing code. Do not guess
-  a behaviour the spec does not already imply.
+  a behaviour the spec does not already imply. Post the questions on the issue (step 7) too.
 
 ## 2. Branch
 
@@ -92,3 +92,29 @@ Closes #<n>
 ```
 
 Report the PR URL. Do not merge it.
+
+## 7. Comment on the issue — always
+
+Every run ends with one comment on the issue, whatever the outcome: PR opened, stopped with
+questions, or failed. Write it to a file outside the repository (e.g. under `/tmp`) and post it:
+
+```bash
+gh issue comment <n> --body-file /tmp/issue-<n>-result.md
+```
+
+Keep it short:
+
+```markdown
+**Result:** PR opened: <PR URL> | Need input | Failed at <step>
+
+<one or two sentences: what was done, or what blocked it>
+
+- Spec: <section changed, or "none">
+- Tests: <new tests, or "none">
+- Checks: typecheck <pass/fail>, tests <pass/fail>, smoke <pass/fail>
+
+<for Need input: the numbered questions; for Failed: the failing command and the key lines of its output>
+```
+
+Show the same text in the chat with the comment link `gh` prints. If posting fails, say so;
+the run is not done until the comment is on the issue.
