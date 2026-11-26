@@ -8,5 +8,6 @@ JetBrains/kotlin · 6 skills
 build-tools-bump-gradle-api — Bumps the Gradle API…
   https://github.com/JetBrains/kotlin/blob/<commit>/…
 ```
-- Sorted by **name**; the description's *first sentence*
-- `also in <paths>` for copies; warnings go to *stderr*
+- Counts unique skills, grouping files with identical contents
+- Sorted by **name**, then skill ID; the description's *first sentence*
+- Every source URL on its own indented line, ordered by `repo:path`; warnings go to *stderr*

@@ -10,31 +10,42 @@ export type Repository = {
   commit: string;
 };
 
-/** One skill. Its link is derived, by `skillLink`. */
+/** One distinct SKILL.md content, shared by every linked source location. */
 export type Skill = {
-  /** `repo:path`, for example `JetBrains/kotlin:.claude/skills/x/SKILL.md`. */
+  /** The alphabetically first `repo:path` among its source locations. */
   id: string;
-  repository: string;
-  path: string;
+  /** Complete UTF-8 text, without whitespace or line-ending normalization. */
+  content: string;
   name: string;
   description: string;
-  /** The scanned commit, the one the link pins; empty for a local directory. */
-  commit: string;
-  /** The same skill in other agents' folders. */
-  copies: string[];
+  /** Source locations ordered by `repo:path`. */
+  links: SkillLink[];
+};
+
+export type SkillLink = {
+  repository: string;
+  path: string;
+  url: string;
+  /** The scanned GitHub commit; omitted for local files. */
+  commit?: string;
 };
 
 /**
  * The SKILL.md file, from where its repository is: on GitHub at the scanned commit,
  * `https://github.com/<owner>/<repo>/blob/<commit>/<path>`; in a local directory, the file itself.
  */
-export function skillLink(repository: Repository, skill: Skill): string {
-  const path = skill.path.split('/').map(encodeURIComponent).join('/');
-  return skill.commit ? `${repository.url}/blob/${skill.commit}/${path}` : `${repository.url}/${path}`;
+export function skillLink(repository: Repository, path: string): SkillLink {
+  const encoded = path.split('/').map(encodeURIComponent).join('/');
+  return {
+    repository: repository.id,
+    path,
+    url: repository.commit ? `${repository.url}/blob/${repository.commit}/${encoded}` : `${repository.url}/${encoded}`,
+    ...(repository.commit ? { commit: repository.commit } : {}),
+  };
 }
 
-/** By name, then by path: the same order everywhere, whatever the locale. */
+/** By name, then by ID: the same order everywhere, whatever the locale. */
 export function sortSkills(skills: Skill[]): Skill[] {
   const compare = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
-  return [...skills].sort((a, b) => compare(a.name, b.name) || compare(a.path, b.path));
+  return [...skills].sort((a, b) => compare(a.name, b.name) || compare(a.id, b.id));
 }
