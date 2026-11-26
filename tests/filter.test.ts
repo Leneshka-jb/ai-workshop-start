@@ -133,10 +133,14 @@ async function open(base: string, repo: string, filter = '') {
     URL, document,
     fetch: (path: string) => { requested.push(path); filterHiddenWhileScanning = nodes.filter.hidden; return (done = fetch(base + path)); },
   });
+  /** Submits the form as the Scan button would, and waits for the whole scan: the handler and its fetch. */
+  const submit = async () => {
+    await nodes.form.listeners.submit({ preventDefault() {} });
+    await done;
+  };
   nodes.repo.value = repo;
   nodes.filter.value = filter;
-  await nodes.form.listeners.submit({ preventDefault() {} });
-  await done;
+  await submit();
   const seen = () => ({
     status: nodes.status.textContent,
     error: nodes.status.className === 'error',
@@ -148,7 +152,7 @@ async function open(base: string, repo: string, filter = '') {
     nodes.filter.listeners.input?.({ preventDefault() {} });
     return seen();
   };
-  return { seen, type, requested, nodes, filterHiddenWhileScanning };
+  return { seen, type, submit, requested, nodes, filterHiddenWhileScanning };
 }
 
 test('GET / → a second input, for the filter, under the header and outside the form, with no button', async (t) => {
@@ -191,12 +195,11 @@ test('page: typing filters the last scan at every keystroke, without scanning ag
 });
 
 test('page: the filter text is kept for the next scan and applied to it', async (t) => {
-  const { type, nodes, seen } = await open(await serve(t), 'https://github.com/JetBrains/empty');
+  const { type, submit, nodes, seen } = await open(await serve(t), 'https://github.com/JetBrains/empty');
   type('review');
   assert.equal(seen().status, 'JetBrains/empty · No skills found');
   nodes.repo.value = 'https://github.com/JetBrains/many';
-  await nodes.form.listeners.submit({ preventDefault() {} });
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  await submit();
   assert.equal(nodes.filter.value, 'review');
   assert.deepEqual(seen().skills, ['review']);
   assert.equal(seen().status, 'JetBrains/many · 1 of 4 skills');
