@@ -1,0 +1,28 @@
+# Every issue and pull request comment event goes to the Air automation as JSON: the GitHub event
+# payload, unchanged. See spec/action.md. The API key comes from the AIR_AUTOMATION_API_KEY secret.
+name: Issue comment
+on:
+  issue_comment:
+    types: [created, edited, deleted]
+permissions: {}
+jobs:
+  notify:
+    # Comments from bots are not sent, so an automation that comments cannot trigger itself.
+    if: github.event.comment.user.type != 'Bot'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Send the event to the Air automation
+        env:
+          AIR_AUTOMATION_URL: https://api.jetbrains.cloud/air-automations-gateway/api/v1/events/automations/a042fce6-99f4-4b00-a952-609d6ef6727c
+          AIR_AUTOMATION_API_KEY: ${{ secrets.AIR_AUTOMATION_API_KEY }}
+        run: |
+          if [ -z "$AIR_AUTOMATION_API_KEY" ]; then
+            echo "::error::Set the AIR_AUTOMATION_API_KEY repository secret"
+            exit 1
+          fi
+          curl --fail-with-body --silent --show-error --retry 3 --max-time 30 \
+            --request POST "$AIR_AUTOMATION_URL" \
+            --header "Authorization: ApiKey $AIR_AUTOMATION_API_KEY" \
+            --header "Content-Type: application/json" \
+            --data-binary "@$GITHUB_EVENT_PATH"
