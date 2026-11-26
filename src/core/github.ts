@@ -1,4 +1,4 @@
-import { AtlasError } from './errors.ts';
+import { AtlasError, GitHubUnavailableError } from './errors.ts';
 import { SKIPPED_DIRECTORIES } from './find.ts';
 import type { Source } from './scan.ts';
 
@@ -20,15 +20,68 @@ export function parseGitHubUrl(input: string): { owner: string; repo: string } |
   return match ? { owner: match[1], repo: match[2] } : undefined;
 }
 
+/** `https://github.com/owner`, with or without the scheme or a trailing slash: an organization or a user. */
+export function parseGitHubOwnerUrl(input: string): { owner: string } | undefined {
+  const match = /^(?:https?:\/\/)?(?:www\.)?github\.com\/([\w.-]+)\/?$/i.exec(input.trim());
+  return match ? { owner: match[1] } : undefined;
+}
+
+/** What GitHub says about a repository, in its own answer and in an organization's listing. */
+export type RepositoryInfo = { full_name: string; default_branch: string };
+
 /** Resolves the default branch to a commit and lists the files that may be skills. */
 export async function openGitHub(input: string, options: GitHubOptions): Promise<Source> {
   const name = parseGitHubUrl(input);
   if (!name) throw new AtlasError(`Not a GitHub repository URL: ${input}`);
   const github = client(options);
-  const info = await github.json<{ full_name: string; default_branch: string }>(
+  const info = await github.json<RepositoryInfo>(
     `${API}/repos/${name.owner}/${name.repo}`,
     `Repository not found: https://github.com/${name.owner}/${name.repo}`,
   );
+  return pinned(github, info);
+}
+
+/** An organization (or a user) and every repository it owns, each ready to be opened as a Source. */
+export type Organization = {
+  /** The login as GitHub spells it. */
+  id: string;
+  url: string;
+  repositories: RepositoryInfo[];
+  open(repository: RepositoryInfo): Promise<Source>;
+};
+
+const PAGE_SIZE = 100;
+
+/** Lists every repository of the organization or user, page by page until a short page. */
+export async function openOrganization(input: string, options: GitHubOptions): Promise<Organization> {
+  const name = parseGitHubOwnerUrl(input);
+  if (!name) throw new AtlasError(`Not a GitHub organization URL: ${input}`);
+  const github = client(options);
+  const account = await github.json<{ login: string; type: string }>(
+    `${API}/users/${name.owner}`,
+    `Organization not found: https://github.com/${name.owner}`,
+  );
+  const login = account.login;
+  const list = account.type === 'Organization'
+    ? `${API}/orgs/${login}/repos?type=all&per_page=${PAGE_SIZE}`
+    : `${API}/users/${login}/repos?type=owner&per_page=${PAGE_SIZE}`;
+  const repositories: RepositoryInfo[] = [];
+  for (let page = 1; ; page++) {
+    const batch = await github.json<RepositoryInfo[]>(`${list}&page=${page}`);
+    repositories.push(...batch);
+    if (batch.length < PAGE_SIZE) break;
+  }
+  return {
+    id: login,
+    url: `https://github.com/${login}`,
+    repositories,
+    // A client per repository, so its listings are released after its scan; the token only if
+    // the organization did not refuse it for SAML SSO.
+    open: (info) => pinned(client({ fetch: options.fetch, token: github.token() }), info),
+  };
+}
+
+async function pinned(github: Client, info: RepositoryInfo): Promise<Source> {
   const id = info.full_name;
   const { sha } = await github.json<{ sha: string }>(`${API}/repos/${id}/commits/${encodePath(info.default_branch)}`);
   const paths = await treePaths(github, id, sha);
@@ -74,7 +127,7 @@ function client({ fetch, token }: GitHubOptions) {
     try {
       return await fetch(url, init);
     } catch (error) {
-      throw new AtlasError(`Cannot reach GitHub: ${describe(error)}`);
+      throw new GitHubUnavailableError(`Cannot reach GitHub: ${describe(error)}`);
     }
   }
 
@@ -102,13 +155,15 @@ function client({ fetch, token }: GitHubOptions) {
     if ((status === 403 || status === 429) && /rate limit/i.test(text)) {
       const advice = authorization ? 'try again in a minute'
         : token ? "authorize GITHUB_TOKEN for the organization's SAML SSO" : 'set GITHUB_TOKEN';
-      throw new AtlasError(`GitHub rate limit reached; ${advice}`);
+      throw new GitHubUnavailableError(`GitHub rate limit reached; ${advice}`);
     }
-    if (status === 401) throw new AtlasError('GitHub rejected the token in GITHUB_TOKEN');
+    if (status === 401) throw new GitHubUnavailableError('GitHub rejected the token in GITHUB_TOKEN');
     throw new AtlasError(`GitHub answered ${status} for ${url}${text && `: ${text}`}`);
   }
 
   return {
+    /** The token, unless an organization refused it for SAML SSO. */
+    token: () => (authorization ? token : undefined),
     /** A GitHub API answer; `notFound` explains a 404. */
     json<T>(url: string, notFound = `Not found on GitHub: ${url}`): Promise<T> {
       if (!answers.has(url)) answers.set(url, request(url, notFound));

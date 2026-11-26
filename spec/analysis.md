@@ -6,6 +6,14 @@ Equality is byte-for-byte, without normalizing whitespace, line endings, or fron
 ## Input
 A **GitHub repository** URL, or a local directory
 Each scan groups files within that one input; results are not merged across scans.
+## Organization
+A **GitHub organization** URL, `https://github.com/<owner>` (also a user account): every repository it owns, each with its number of skills.
+- Repositories are listed through the GitHub API, page by page until the last; with a token, also the private ones it can see
+- Each repository is scanned on its own, as a repository URL would be: its count is its unique skills; nothing is grouped across repositories
+- Repositories are sorted by `owner/name`, case-sensitive and locale-independent
+- A repository that cannot be scanned (empty, missing at its default branch, …) → listed without a count and a *warning*; the others are still scanned
+- A repository's own warnings are kept, prefixed with `owner/name: `
+- Missing organization → `Organization not found: https://github.com/<owner>`; unreachable GitHub, rate limit or a rejected token stops the whole scan with the repository scan's message
 ## Search scope
 Search the whole project recursively for `SKILL.md` files, including the project root and all nested and hidden directories.
 Skip `.git` and `node_modules` directories at every depth. Only regular files named exactly `SKILL.md` are skills; do not follow symbolic links.

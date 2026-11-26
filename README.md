@@ -15,7 +15,8 @@ build-tools-bump-gradle-api — Bumps the Gradle API version that Kotlin Gradle 
 
 Set `GITHUB_TOKEN` for a higher GitHub rate limit. `npm test` runs the tests.
 
-`./skill-atlas serve` opens a web view on http://localhost:3000: paste a GitHub repository link to see its skills, optionally filtered by name or description.
+`./skill-atlas serve` opens a web view on http://localhost:3000: paste a GitHub repository link to see its skills, optionally filtered by name or description,
+or an organization link (`https://github.com/<owner>`) to list its repositories with the number of skills in each.
 
 - [spec/](spec/): what it does. [AGENTS.md](AGENTS.md): the definition of done.
 - [fixture/](fixture/README.md): a small repository for the tests.
