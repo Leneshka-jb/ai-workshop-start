@@ -31,3 +31,5 @@ Link: repository, path, url, commit (for GitHub sources; omitted for local files
 - Malformed front matter → a *warning* for each source file, the scan goes on
 - A listed but missing file → a *warning* and no link; other files are still scanned
 - Unreachable repository → a clear message, exit code 1
+- Token refused for an organization's SAML SSO → retry without the token, and scan the rest of that repository without it; public repositories still scan
+- Still not found without the token → a message to authorize `GITHUB_TOKEN` for the organization's SAML SSO
