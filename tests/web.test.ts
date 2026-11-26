@@ -1,7 +1,7 @@
 // The decisions in spec/web.md, checked over HTTP against a server answered by tests/helpers.ts.
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import type { AddressInfo } from 'node:net';
+import { connect, type AddressInfo } from 'node:net';
 import { test, type TestContext } from 'node:test';
 import { replay } from '../src/core/replay.ts';
 import type { Fetch } from '../src/core/github.ts';
@@ -106,4 +106,47 @@ test('serve with a bad port → usage, exit code 1', async () => {
   const bad = spawnSync(process.execPath, [CLI, 'serve', 'abc'], { encoding: 'utf8' });
   assert.equal(bad.status, 1);
   assert.equal(bad.stderr, 'Usage: skill-atlas serve [port]\n');
+});
+
+/** Sends raw bytes and returns the status line of the answer, or '' if the connection closes without one. */
+function raw(base: string, request: string): Promise<string> {
+  const { hostname, port } = new URL(base);
+  return new Promise((resolve, reject) => {
+    let answer = '';
+    const socket = connect(Number(port), hostname, () => socket.write(request));
+    socket.setEncoding('utf8').on('data', (text: string) => { answer += text; });
+    socket.on('error', reject).on('close', () => resolve(answer.split('\r\n')[0]));
+    socket.setTimeout(2000, () => socket.end());
+  });
+}
+
+test('an unreadable request URL → 400, and the server keeps answering', async (t) => {
+  const base = await serve(t);
+  assert.equal(await raw(base, 'GET http://[ HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n'), 'HTTP/1.1 400 Bad Request');
+  assert.equal((await fetch(base)).status, 200);
+});
+
+test('an unexpected error → 500, and the server keeps answering', async (t) => {
+  // GitHub answers 200 with a body that is not JSON.
+  const base = await serve(t, replay({ 'https://api.github.com/repos/JetBrains/broken': { status: 200, body: 'not json' } }));
+  const response = await scan(base, 'https://github.com/JetBrains/broken');
+  assert.equal(response.status, 500);
+  assert.match(((await response.json()) as { error: string }).error, /^Unexpected error: /);
+  assert.equal((await fetch(base)).status, 200);
+});
+
+test('./skill-atlas serve survives an unreadable request URL', async (t) => {
+  const child = spawn(process.execPath, [CLI, 'serve', '0'], { stdio: ['ignore', 'pipe', 'pipe'] });
+  t.after(() => child.kill());
+  let exited = false;
+  child.once('exit', () => { exited = true; });
+  const address = await new Promise<string>((resolve) => {
+    child.stdout.setEncoding('utf8').on('data', (text: string) => {
+      const match = /(http:\/\/localhost:\d+)/.exec(text);
+      if (match) resolve(match[1].replace('localhost', '127.0.0.1'));
+    });
+  });
+  assert.equal(await raw(address, 'GET http://[ HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n'), 'HTTP/1.1 400 Bad Request');
+  assert.equal((await fetch(address)).status, 200);
+  assert.equal(exited, false);
 });

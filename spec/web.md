@@ -13,3 +13,4 @@ Repository text is shown as text, never as HTML.
 - Not a GitHub repository URL → `400` and `{ error }`; local directories are **not** accepted
 - Unreachable or missing repository, rate limit → `502` and `{ error }` with the CLI's message
 - Unknown path → `404`; methods other than `GET` → `405`
+- An unreadable request URL → `400`; any unexpected error → `500` and `{ error }`. No request stops the server
