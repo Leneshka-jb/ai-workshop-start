@@ -3,8 +3,10 @@
 import assert from 'node:assert/strict';
 import type { AddressInfo } from 'node:net';
 import { test, type TestContext } from 'node:test';
+import { runInNewContext } from 'node:vm';
 import type { Fetch } from '../src/core/github.ts';
 import { replay, type Recording } from '../src/core/replay.ts';
+import { PAGE } from '../src/web/page.ts';
 import { createWebServer } from '../src/web/server.ts';
 import { github } from './helpers.ts';
 
@@ -135,6 +137,25 @@ test('a token refused for SAML SSO → the organization and its repositories are
   assert.equal(asked.filter((line) => line.startsWith('token')).length, 1);
 });
 
+test('with a token, a private repository is listed and its files are read with the token', async (t) => {
+  const recorded = replay({
+    [`${API}/users/acme`]: { status: 200, body: { login: 'acme', type: 'Organization' } },
+    [`${API}/orgs/acme/repos?type=all&per_page=100&page=1`]: { status: 200, body: [info('acme/secret')] },
+    ...repository('acme/secret', { 'SKILL.md': SKILL }),
+  });
+  // What GitHub answers for a private repository: not found without the token.
+  const fetch: Fetch = async (url, init) => init?.headers?.Authorization === 'Bearer t'
+    ? recorded(url, init)
+    : new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 });
+  const response = await organization(await serve(t, fetch, 't'), 'https://github.com/acme');
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {
+    organization: { id: 'acme', url: 'https://github.com/acme' },
+    repositories: [{ id: 'acme/secret', name: 'secret', url: 'https://github.com/acme/secret', skills: 1 }],
+    warnings: [],
+  });
+});
+
 test('not an organization URL → 400; missing organization or GitHub unavailable → 502 and the message', async (t) => {
   const base = await serve(t, replay({
     [`${API}/users/nobody`]: { status: 404, body: { message: 'Not Found' } },
@@ -168,4 +189,91 @@ test('the page sends an organization link to /api/organization and lists its rep
   assert.match(page, /' repositories'/);
   assert.match(page, /'not scanned'/);
   assert.doesNotMatch(page, /innerHTML/);
+});
+
+/** Just enough DOM to run the page's script: elements by id, children, text and listeners. */
+type Node = {
+  tag: string; textContent: string; value: string; hidden: boolean; disabled: boolean; className: string;
+  href?: string; type?: string; target?: string; rel?: string; children: Node[];
+  listeners: Record<string, ((event: { preventDefault(): void }) => unknown)[]>;
+  append(...nodes: Node[]): void; replaceChildren(...nodes: Node[]): void; querySelector(tag: string): Node;
+  addEventListener(type: string, listener: (event: { preventDefault(): void }) => unknown): void; requestSubmit(): void;
+};
+
+function node(tag: string, ...children: Node[]): Node {
+  const self: Node = {
+    tag, textContent: '', value: '', hidden: false, disabled: false, className: '', children, listeners: {},
+    append: (...nodes) => { self.children.push(...nodes); },
+    replaceChildren: (...nodes) => { self.children = nodes; },
+    querySelector: (wanted) => self.children.find((child) => child.tag === wanted)!,
+    addEventListener: (type, listener) => { (self.listeners[type] ??= []).push(listener); },
+    requestSubmit: () => { for (const listener of self.listeners.submit ?? []) submitted = listener({ preventDefault() {} }); },
+  };
+  return self;
+}
+let submitted: unknown;
+
+/** Runs the served page's script against `api`, enters `input` and submits; returns the requests and the DOM. */
+async function page(input: string, api: (url: string) => unknown) {
+  const script = /<script>([\s\S]*)<\/script>/.exec(PAGE)![1];
+  const elements: Record<string, Node> = {
+    form: node('form', node('input'), node('button')),
+    repo: node('input'),
+    filter: node('input'),
+    status: node('div'),
+    skills: node('div'),
+    warnings: node('details', node('summary'), node('ul')),
+  };
+  const requested: string[] = [];
+  runInNewContext(script, {
+    URL,
+    document: { getElementById: (id: string) => elements[id], createElement: (tag: string) => node(tag) },
+    fetch: async (url: string) => {
+      requested.push(url);
+      return { ok: true, json: async () => api(url) };
+    },
+  });
+  const submit = async () => { elements.form.requestSubmit(); await submitted; };
+  elements.repo.value = input;
+  await submit();
+  return { requested, elements, submit };
+}
+
+const ORGANIZATION = {
+  organization: { id: 'Acme', url: 'https://github.com/Acme' },
+  repositories: [
+    { id: 'Acme/agents', name: 'agents', url: 'https://github.com/Acme/agents', skills: 1 },
+    { id: 'Acme/empty', name: 'empty', url: 'https://github.com/Acme/empty', skills: null },
+  ],
+  warnings: [],
+};
+const SCAN = { repository: { id: 'Acme/agents' }, skills: [], total: 0, warnings: [] };
+
+test('the page: one path segment is an organization; anything else is scanned as a repository', async () => {
+  const cases = {
+    'https://github.com/Acme': '/api/organization?org=https%3A%2F%2Fgithub.com%2FAcme',
+    'https://github.com/Acme/': '/api/organization?org=https%3A%2F%2Fgithub.com%2FAcme%2F',
+    'https://github.com/Acme/agents': '/api/scan?repo=https%3A%2F%2Fgithub.com%2FAcme%2Fagents&filter=',
+    'github.com/Acme': '/api/scan?repo=github.com%2FAcme&filter=',
+  };
+  for (const [input, request] of Object.entries(cases)) {
+    const { requested } = await page(input, (url) => (url.startsWith('/api/organization') ? ORGANIZATION : SCAN));
+    assert.deepEqual(requested, [request], input);
+  }
+});
+
+test('the page: a repository\'s Scan button scans that repository', async () => {
+  const { requested, elements } = await page('https://github.com/Acme', (url) => (url.startsWith('/api/organization') ? ORGANIZATION : SCAN));
+  assert.equal(elements.status.textContent, 'Acme · 2 repositories');
+  const rows = elements.skills.children;
+  assert.deepEqual(rows.map((row) => row.children.map((child) => child.textContent)), [
+    ['Acme/agents', '1 skill', 'Scan'],
+    ['Acme/empty', 'not scanned', 'Scan'],
+  ]);
+  const button = rows[0].children[2];
+  for (const listener of button.listeners.click) listener({ preventDefault() {} });
+  await submitted; // the click submits the form
+  assert.equal(elements.repo.value, 'https://github.com/Acme/agents');
+  assert.equal(requested.at(-1), '/api/scan?repo=https%3A%2F%2Fgithub.com%2FAcme%2Fagents&filter=');
+  assert.equal(elements.status.textContent, 'Acme/agents · No skills found');
 });
