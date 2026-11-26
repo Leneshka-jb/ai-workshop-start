@@ -60,6 +60,8 @@ QA stop                                      # writes /tmp/manual-qa/out/<name>.
 - **Check every Expected item** against what you actually got: exact text where the script gives
   exact text, exit codes, order, counts, what must *not* appear. Use `text`, `eval` and `shot` (then view
   the PNG) for the page. Never decide from memory or from what the code should do.
+- **Look before you judge**: read the output of the last check before `QA result`. A verdict cannot
+  be changed once the next case starts. If one was wrong, stop and record that script again.
 - **One verdict per case**, with `QA result`:
   - `pass <what was seen>`: every expected item was observed.
   - `fail <expected X, got Y>`: anything differs. Quote the actual output. If the script itself looks
@@ -74,6 +76,11 @@ QA stop                                      # writes /tmp/manual-qa/out/<name>.
 - An equivalent that keeps the intent is fine. Say so with `QA note` before you use it. For example:
   "Wi-Fi off" becomes `sudo unshare -n -- sudo -u "$(id -un)" env PATH="$PATH" <command>`, and "from
   another machine" becomes this machine's non-loopback address. Note it in the verdict as well.
+- Only the first tab is in the video. When `click` opens a new tab, `QA tab 1` lets you inspect it;
+  then go back with `QA tab 0`, or `open` the URL in the first tab so that it is recorded.
+- github.com sometimes shows headless Chromium its "Unicorn!" error page. Check the page title. Retry,
+  or use the `…/raw/<commit>/<path>` URL and say so in a note.
+- A step whose page already shows the expected text proves nothing: `open` the page fresh first.
 - Scratch files go in `mktemp -d` directories, never in `QA_ROOT`. Do not edit the code under test or
   the scripts.
 - If a command errors (`error: …`), fix the call and go on. If the recorder dies, read
@@ -88,13 +95,15 @@ node .claude/skills/manual-qa/report.mjs --pr <n> --sha <headRefOid>
 ```
 
 What it does:
-- Commits the videos and a thumbnail each to the `qa-recordings` branch, under `pr-<n>/<timestamp>/`.
-  The branch is orphan and holds only recordings; it is created on first use. The links in the
-  comment are pinned to that commit.
+- Commits each video (MP4) and an animated GIF of it (2 fps) to the `qa-recordings` branch, under
+  `pr-<n>/<timestamp>/`. The branch is orphan and holds only recordings; it is created on first use.
+  The links in the comment are pinned to that commit. GitHub plays no committed video inline, so the
+  comment embeds the GIFs and links the MP4 for download.
 - Writes `/tmp/manual-qa/report.md`: an overall verdict (Fail if any case fails), a table per script
   with a video link, the failures with the time in the video, the skipped cases with their reasons, and
   every case.
-- Posts it with `gh pr comment` and prints the comment URL.
+- Posts it with `gh pr comment` and prints the comment URL. With `--edit-last` it replaces your last
+  comment instead, e.g. after re-recording.
 
 Use `--dry-run` to write the report without pushing or posting. In Air, the videos are also copied
 to `$AIR_ARTIFACTS_DIR/manual-qa/`.

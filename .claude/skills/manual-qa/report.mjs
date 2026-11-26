@@ -1,7 +1,9 @@
 // Builds the manual-QA report from <out>/*.json, publishes the videos and posts the report on the PR.
-// Usage: node report.mjs --pr <n> [--sha <tested commit>] [--out /tmp/manual-qa/out] [--dry-run]
-//   Videos and thumbnails are committed to the `qa-recordings` branch (orphan, only recordings) under
-//   pr-<n>/<timestamp>/ and linked pinned to that commit. --dry-run writes report.md and posts nothing.
+// Usage: node report.mjs --pr <n> [--sha <tested commit>] [--out /tmp/manual-qa/out] [--dry-run] [--edit-last]
+//   Videos (MP4) and animated GIF previews are committed to the `qa-recordings` branch (orphan, only recordings) under
+//   pr-<n>/<timestamp>/ and linked pinned to that commit. GitHub plays no committed video inline, but it
+//   does animate GIFs in comments: the GIFs are what a reviewer watches, the MP4 is to download.
+//   --dry-run writes report.md and posts nothing.
 import { execFileSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
@@ -9,7 +11,7 @@ import { parseArgs } from 'node:util';
 
 const { values: args } = parseArgs({ options: {
   pr: { type: 'string' }, sha: { type: 'string' }, out: { type: 'string', default: '/tmp/manual-qa/out' },
-  'dry-run': { type: 'boolean', default: false }, branch: { type: 'string', default: 'qa-recordings' },
+  'dry-run': { type: 'boolean', default: false }, 'edit-last': { type: 'boolean', default: false }, branch: { type: 'string', default: 'qa-recordings' },
 } });
 if (!args.pr && !args['dry-run']) throw new Error('--pr <n> is required (or --dry-run)');
 
@@ -25,21 +27,20 @@ const d = new Date();
 const stamp = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
 const mmss = (s) => `${Math.floor(s / 60)}:${pad(Math.floor(s % 60))}`;
 
-// A thumbnail per video: the frame a moment into the first failing case, or into the middle.
+// An animated GIF per video, 2 frames per second, for watching in the comment.
 for (const r of results) {
-  const firstFail = r.cases.find((c) => c.result === 'fail');
-  r.thumbAt = firstFail ? firstFail.at + 2 : r.seconds / 2;
-  r.thumb = join(OUT, `${r.script}.png`);
+  r.gif = join(OUT, `${r.script}.gif`);
   try {
-    run('ffmpeg', ['-y', '-loglevel', 'error', '-ss', String(r.thumbAt), '-i', r.video, '-frames:v', '1', '-vf', 'scale=640:-1', r.thumb]);
-  } catch { r.thumb = null; }
+    run('ffmpeg', ['-y', '-loglevel', 'error', '-i', r.video, '-vf',
+      'fps=2,scale=800:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=64:stats_mode=diff[p];[b][p]paletteuse=dither=none:diff_mode=rectangle', r.gif]);
+  } catch { r.gif = null; }
 }
 
 // Keep a copy as session artifacts, when running in Air.
 if (process.env.AIR_ARTIFACTS_DIR) {
   const dir = join(process.env.AIR_ARTIFACTS_DIR, 'manual-qa', stamp);
   mkdirSync(dir, { recursive: true });
-  for (const r of results) copyFileSync(r.video, join(dir, basename(r.video)));
+  for (const r of results) for (const f of [r.video, r.gif].filter(Boolean)) copyFileSync(f, join(dir, basename(f)));
 }
 
 // Publish the videos: commit them to the recordings branch, links pinned to that commit.
@@ -47,7 +48,9 @@ let base = null;
 if (!args['dry-run']) {
   const dir = '/tmp/manual-qa/recordings';
   rmSync(dir, { recursive: true, force: true });
-  const remote = `https://github.com/${repo}.git`;
+  // The checkout's own remote URL: credential helpers may match it exactly (credential.useHttpPath).
+  let remote;
+  try { remote = run('git', ['remote', 'get-url', 'origin']); } catch { remote = `https://github.com/${repo}.git`; }
   const exists = run('git', ['ls-remote', '--heads', remote, args.branch]) !== '';
   if (exists) run('git', ['clone', '--quiet', '--depth', '1', '--branch', args.branch, remote, dir]);
   else {
@@ -59,7 +62,7 @@ if (!args['dry-run']) {
   mkdirSync(target, { recursive: true });
   for (const r of results) {
     copyFileSync(r.video, join(target, basename(r.video)));
-    if (r.thumb) copyFileSync(r.thumb, join(target, basename(r.thumb)));
+    if (r.gif) copyFileSync(r.gif, join(target, basename(r.gif)));
   }
   run('git', ['-C', dir, 'add', '-A']);
   run('git', ['-C', dir, 'commit', '--quiet', '-m', `Manual QA of #${args.pr} at ${sha.slice(0, 7)}`]);
@@ -71,7 +74,8 @@ const blob = (file) => (base ? `${base}/${basename(file)}` : basename(file));
 const raw = (file) => blob(file).replace('/blob/', '/raw/');
 
 // The report.
-const all = results.flatMap((r) => r.cases.map((c) => ({ ...c, script: r.script, video: r.video })));
+const all = results.flatMap((r) => r.cases.map((c) => ({ ...c, script: r.script, video: r.gif ?? r.video })));
+const watch = (r) => (r.gif ? `[▶ ${mmss(r.seconds)}](${blob(r.gif)}) · [mp4](${raw(r.video)})` : `[▶ ${mmss(r.seconds)}](${raw(r.video)})`);
 const count = (list, result) => list.filter((c) => c.result === result).length;
 const failed = all.filter((c) => c.result === 'fail');
 const verdict = failed.length ? '❌ Fail' : '✅ Pass';
@@ -87,7 +91,7 @@ const lines = [
   '| Script | Result | Pass | Fail | Skip | Video |',
   '| --- | --- | --- | --- | --- | --- |',
   ...results.map((r) => `| ${scriptLink(r)} | ${count(r.cases, 'fail') ? icon.fail : icon.pass} `
-    + `| ${count(r.cases, 'pass')} | ${count(r.cases, 'fail')} | ${count(r.cases, 'skip')} | [▶ ${mmss(r.seconds)}](${blob(r.video)}) |`),
+    + `| ${count(r.cases, 'pass')} | ${count(r.cases, 'fail')} | ${count(r.cases, 'skip')} | ${watch(r)} |`),
 ];
 const describe = (c) => [c.note, ...(c.notes ?? []).map((n) => `_${n}_`)].filter(Boolean).join(' — ');
 if (failed.length) {
@@ -106,10 +110,11 @@ for (const r of results) {
   lines.push('');
 }
 lines.push('</details>');
-if (results.some((r) => r.thumb)) {
-  lines.push('', '<details><summary>Thumbnails</summary>', '');
-  for (const r of results.filter((x) => x.thumb)) lines.push(`[<img src="${raw(r.thumb)}" width="320" alt="${r.script}">](${blob(r.video)})`);
-  lines.push('', '</details>');
+// The recordings themselves, one collapsed section each: GitHub plays the GIF when it is opened.
+lines.push('', '### Recordings', '');
+for (const r of results) {
+  lines.push(`<details><summary>${r.script} (${mmss(r.seconds)})</summary>`, '');
+  lines.push(r.gif ? `<img src="${raw(r.gif)}" width="800" alt="${r.script}">` : `[${basename(r.video)}](${raw(r.video)})`, '', '</details>');
 }
 lines.push('', '<sub>Recorded with the `manual-qa` skill: headless Chromium; command-line steps are shown in an in-browser terminal, the caption shows the case and its verdict.</sub>');
 
@@ -117,6 +122,6 @@ const report = join(OUT, '..', 'report.md');
 writeFileSync(report, lines.join('\n') + '\n');
 console.log('report:', report);
 if (!args['dry-run']) {
-  console.log(run('gh', ['pr', 'comment', args.pr, '--body-file', report]));
+  console.log(run('gh', ['pr', 'comment', args.pr, '--body-file', report, ...(args['edit-last'] ? ['--edit-last'] : [])]));
 }
 console.log(`verdict: ${verdict}`);

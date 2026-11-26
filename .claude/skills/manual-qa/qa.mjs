@@ -161,7 +161,8 @@ async function daemon(name, source) {
       if (current) cases.push(current);
       current = { id, title: title.join(' '), result: null, note: '', at: Math.round((Date.now() - started) / 100) / 10 };
       history = [];
-      if (page.url() === 'about:blank' && !(await onTerminal())) await page.setContent(TERMINAL);
+      if (await onTerminal()) await terminal(); // a new case starts with an empty terminal
+      else if (page.url() === 'about:blank') await page.setContent(TERMINAL);
       await caption();
       await pause(600);
       return `${name} · ${id} ${current.title}`;
