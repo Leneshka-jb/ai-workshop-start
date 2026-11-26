@@ -45,7 +45,7 @@ test('GET / → the page with a repository link input', async (t) => {
   assert.doesNotMatch(page, /innerHTML/);
 });
 
-test('GET /api/scan → the scan result as JSON: repository, skills with all links, warnings', async (t) => {
+test('GET /api/scan → the scan result as JSON: repository, skills with all links, total, warnings', async (t) => {
   const response = await scan(await serve(t), 'https://github.com/JetBrains/example');
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), {
@@ -68,6 +68,7 @@ test('GET /api/scan → the scan result as JSON: repository, skills with all lin
         commit: EXAMPLE_COMMIT,
       }],
     }],
+    total: 1,
     warnings: [],
   });
 });

@@ -1,4 +1,4 @@
-// The page the web view serves: one input, then the skills. Plain DOM, text only, no innerHTML
+// The page the web view serves: a repository link and a filter, then the skills. Plain DOM, text only, no innerHTML
 // for anything that came from a repository.
 export const PAGE = `<!doctype html>
 <html lang="en">
@@ -10,7 +10,7 @@ export const PAGE = `<!doctype html>
   :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
   body { max-width: 52rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.45; }
   form { display: flex; gap: .5rem; }
-  input { flex: 1; padding: .55rem .7rem; font: inherit; border: 1px solid #8888; border-radius: 6px; }
+  input { flex: 1; min-width: 0; padding: .55rem .7rem; font: inherit; border: 1px solid #8888; border-radius: 6px; }
   button { padding: .55rem 1rem; font: inherit; border-radius: 6px; border: 1px solid #8888; cursor: pointer; }
   #status { margin: 1rem 0; color: #888; }
   #status.error { color: #d33; }
@@ -25,6 +25,7 @@ export const PAGE = `<!doctype html>
 <h1>Skill Atlas</h1>
 <form id="form">
   <input id="repo" name="repo" type="url" required placeholder="https://github.com/owner/repo" aria-label="Repository link">
+  <input id="filter" name="filter" type="search" placeholder="Filter by name or description" aria-label="Filter skills">
   <button type="submit">Scan</button>
 </form>
 <div id="status" role="status"></div>
@@ -37,6 +38,7 @@ const el = (tag, text) => { const node = document.createElement(tag); if (text !
 $('form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const repo = $('repo').value.trim();
+  const filter = $('filter').value.trim();
   const status = $('status');
   status.className = '';
   status.textContent = 'Scanning…';
@@ -44,10 +46,10 @@ $('form').addEventListener('submit', async (event) => {
   $('warnings').hidden = true;
   $('form').querySelector('button').disabled = true;
   try {
-    const response = await fetch('/api/scan?repo=' + encodeURIComponent(repo));
+    const response = await fetch('/api/scan?repo=' + encodeURIComponent(repo) + '&filter=' + encodeURIComponent(filter));
     const result = await response.json();
     if (!response.ok) throw new Error(result.error);
-    show(result);
+    show(result, filter);
   } catch (error) {
     status.className = 'error';
     status.textContent = error.message;
@@ -56,8 +58,17 @@ $('form').addEventListener('submit', async (event) => {
   }
 });
 
-function show({ repository, skills, warnings }) {
-  $('status').textContent = repository.id + ' · ' + skills.length + (skills.length === 1 ? ' skill' : ' skills');
+const count = (n) => n + (n === 1 ? ' skill' : ' skills');
+
+/** N skills; with a filter, M of N skills; or why there are none. */
+function summary(shown, total, filter) {
+  if (total === 0) return 'No skills found';
+  if (!filter) return count(total);
+  return shown === 0 ? 'No matching skills' : shown + ' of ' + count(total);
+}
+
+function show({ repository, skills, total, warnings }, filter) {
+  $('status').textContent = repository.id + ' · ' + summary(skills.length, total, filter);
   for (const skill of skills) {
     const card = el('article');
     card.className = 'skill';

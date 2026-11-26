@@ -2,6 +2,7 @@
 // Only GitHub repositories: the page must not read the server's own files.
 import { createServer, type Server } from 'node:http';
 import { AtlasError } from '../core/errors.ts';
+import { filterSkills } from '../core/filter.ts';
 import { openGitHub, parseGitHubUrl, type Fetch } from '../core/github.ts';
 import { scan } from '../core/scan.ts';
 import { PAGE } from './page.ts';
@@ -15,7 +16,8 @@ export type WebOptions = {
 };
 
 /**
- * `GET /`: the page. `GET /api/scan?repo=<GitHub URL>`: the scan result as JSON. Nothing is stored.
+ * `GET /`: the page. `GET /api/scan?repo=<GitHub URL>[&filter=<text>]`: the scan result as JSON,
+ * the skills that match the filter and the total before filtering. Nothing is stored.
  * No request can stop the server: an unreadable URL is a 400, anything unexpected a 500.
  * Only requests addressed to this server are answered: any other Host header is a 421, so a
  * page that rebinds its own domain to this address cannot scan with the token.
@@ -65,7 +67,8 @@ async function handle(method: string | undefined, target: string | undefined, op
   const repo = url.searchParams.get('repo')?.trim() ?? '';
   if (!parseGitHubUrl(repo)) return json(400, { error: `Not a GitHub repository URL: ${repo}` });
   try {
-    json(200, await scan(await openGitHub(repo, options)));
+    const { repository, skills, warnings } = await scan(await openGitHub(repo, options));
+    json(200, { repository, skills: filterSkills(skills, url.searchParams.get('filter') ?? ''), total: skills.length, warnings });
   } catch (error) {
     if (!(error instanceof AtlasError)) throw error;
     json(502, { error: error.message });
