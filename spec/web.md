@@ -2,8 +2,8 @@
 `./skill-atlas serve [port]` starts a local web server on `127.0.0.1` (port 3000 by default) and prints its address.
 `GITHUB_TOKEN`, optional, as for the CLI. *Nothing is stored.*
 ## Page
-`GET /`: an input for a **GitHub repository link** or a **GitHub organization link**, a second input to **filter** the skills by text, and a *Scan* button.
-After a repository scan, the page shows the header described in [Filter](#filter), then each skill as in [analysis](analysis.md):
+`GET /`: an input for a **GitHub repository link** or a **GitHub organization link**, and a *Scan* button.
+After a repository scan, the page shows the header described in [Filter](#filter), the filter input under it, then each skill as in [analysis](analysis.md):
 - **name**, the full **description** (if any), and every **link**, labelled with its path, opening the pinned GitHub file
 - Same grouping and order as the CLI; warnings in a collapsed list below the skills
 - Any error replaces the result with its message
@@ -14,6 +14,11 @@ An organization link (`https://github.com/<owner>`, one path segment) lists its 
 - Warnings in a collapsed list below the repositories
 Repository text is shown as text, never as HTML.
 ## Filter
+A second input, shown only under the header of a repository result (hidden before the first scan, while scanning, for an organization and on an error):
+- Smaller than the link input; no button of its own, not even the browser's clear button
+- Applied on every keystroke, in the page, to the skills of the last scan: typing never scans again
+- Its text is kept when another repository is scanned, and applied to the new result
+
 The filter text, trimmed, keeps the skills whose **name** or **description** contains it, ignoring case (locale-independent).
 - An empty filter keeps every skill, and the page shows `<owner>/<repo> · N skills`
 - Otherwise the page shows `<owner>/<repo> · M of N skills`: M skills match, of N found

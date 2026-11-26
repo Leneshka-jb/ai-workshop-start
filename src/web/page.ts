@@ -1,5 +1,5 @@
-// The page the web view serves: a link and a filter, then the skills, or an organization's repositories. Plain DOM, text only, no innerHTML
-// for anything that came from a repository.
+// The page the web view serves: a link, then the skills under a filter applied as you type, or an organization's repositories.
+// Plain DOM, text only, no innerHTML for anything that came from a repository.
 export const PAGE = `<!doctype html>
 <html lang="en">
 <head>
@@ -13,6 +13,9 @@ export const PAGE = `<!doctype html>
   input { flex: 1; min-width: 0; padding: .55rem .7rem; font: inherit; border: 1px solid #8888; border-radius: 6px; }
   button { padding: .55rem 1rem; font: inherit; border-radius: 6px; border: 1px solid #8888; cursor: pointer; }
   #status { margin: 1rem 0; color: #888; }
+  #filter { display: block; width: 16rem; max-width: 100%; box-sizing: border-box; margin: -.5rem 0 .5rem; padding: .3rem .5rem; font-size: .85rem; }
+  #filter[hidden] { display: none; }
+  #filter::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
   #status.error { color: #d33; }
   .skill { border: 1px solid #8884; border-radius: 8px; padding: .75rem 1rem; margin: .75rem 0; }
   .skill h2 { font-size: 1.05rem; margin: 0 0 .25rem; }
@@ -29,23 +32,27 @@ export const PAGE = `<!doctype html>
 <h1>Skill Atlas</h1>
 <form id="form">
   <input id="repo" name="repo" type="url" required placeholder="https://github.com/owner/repo or https://github.com/owner" aria-label="Repository or organization link">
-  <input id="filter" name="filter" type="search" placeholder="Filter by name or description" aria-label="Filter skills">
   <button type="submit">Scan</button>
 </form>
 <div id="status" role="status"></div>
+<input id="filter" name="filter" type="search" placeholder="Filter by name or description" aria-label="Filter skills" autocomplete="off" hidden>
 <div id="skills"></div>
 <details id="warnings" hidden><summary></summary><ul></ul></details>
 <script>
 const $ = (id) => document.getElementById(id);
 const el = (tag, text) => { const node = document.createElement(tag); if (text !== undefined) node.textContent = text; return node; };
 
+/** The last repository scan, every skill; the filter is applied to it in the page, as you type. */
+let scanned = null;
+
 $('form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const repo = $('repo').value.trim();
-  const filter = $('filter').value.trim();
   const status = $('status');
   status.className = '';
   status.textContent = 'Scanning…';
+  scanned = null;
+  $('filter').hidden = true;
   $('skills').replaceChildren();
   $('warnings').hidden = true;
   $('form').querySelector('button').disabled = true;
@@ -53,11 +60,15 @@ $('form').addEventListener('submit', async (event) => {
     const organization = isOrganization(repo);
     const response = organization
       ? await fetch('/api/organization?org=' + encodeURIComponent(repo))
-      : await fetch('/api/scan?repo=' + encodeURIComponent(repo) + '&filter=' + encodeURIComponent(filter));
+      : await fetch('/api/scan?repo=' + encodeURIComponent(repo));
     const result = await response.json();
     if (!response.ok) throw new Error(result.error);
     if (organization) showOrganization(result);
-    else show(result, filter);
+    else {
+      scanned = result;
+      $('filter').hidden = false;
+      show();
+    }
   } catch (error) {
     status.className = 'error';
     status.textContent = error.message;
@@ -65,6 +76,8 @@ $('form').addEventListener('submit', async (event) => {
     $('form').querySelector('button').disabled = false;
   }
 });
+
+$('filter').addEventListener('input', () => { if (scanned) show(); });
 
 const count = (n) => n + (n === 1 ? ' skill' : ' skills');
 
@@ -107,8 +120,18 @@ function showOrganization({ organization, repositories, warnings }) {
   showWarnings(warnings);
 }
 
-function show({ repository, skills, total, warnings }, filter) {
-  $('status').textContent = repository.id + ' · ' + summary(skills.length, total, filter);
+/** The same match as the API: name or description contains the trimmed text, ignoring case; toLowerCase is locale-independent. */
+function matches(skill, needle) {
+  return skill.name.toLowerCase().includes(needle) || (skill.description || '').toLowerCase().includes(needle);
+}
+
+/** The last scan, through the current filter text. */
+function show() {
+  const { repository, skills: all, warnings } = scanned;
+  const filter = $('filter').value.trim().toLowerCase();
+  const skills = filter ? all.filter((skill) => matches(skill, filter)) : all;
+  $('status').textContent = repository.id + ' · ' + summary(skills.length, all.length, filter);
+  $('skills').replaceChildren();
   for (const skill of skills) {
     const card = el('article');
     card.className = 'skill';
@@ -131,6 +154,7 @@ function show({ repository, skills, total, warnings }, filter) {
 }
 
 function showWarnings(warnings) {
+  $('warnings').hidden = true;
   if (warnings.length) {
     const box = $('warnings');
     box.querySelector('summary').textContent = warnings.length + (warnings.length === 1 ? ' warning' : ' warnings');

@@ -54,19 +54,15 @@ try {
   console.log('repository:', await status.textContent());
   await pause(2500);
 
-  // 3. Filter by text: "M of N skills".
+  // 3. Filter by text, applied as you type: "M of N skills".
   await page.locator('#filter').pressSequentially(FILTER, { delay: 120 });
   await pause(400);
-  await page.locator('#filter').press('Enter');
-  await scanned();
   console.log('filter:', await status.textContent());
   await pause(3000);
 
   // 4. A filter that matches nothing.
   await page.locator('#filter').fill('');
   await page.locator('#filter').pressSequentially('no-such-skill', { delay: 80 });
-  await page.locator('#filter').press('Enter');
-  await scanned();
   console.log('no match:', await status.textContent());
   await pause(2000);
 } finally {
