@@ -16,8 +16,20 @@ process.exitCode = await run(process.argv.slice(2), {
   error: (text) => console.error(text),
   // Local only: the web view listens on the loopback interface.
   serve: (port) => new Promise((resolve, reject) => {
-    const server = createWebServer({ fetch, token });
+    // Filled once listening: the forwarded address needs the port actually in use.
+    const allowedHosts: string[] = [];
+    const server = createWebServer({ fetch, token, allowedHosts });
     server.once('error', (error) => reject(new AtlasError(`Cannot start the web view: ${error.message}`)));
-    server.listen(port, '127.0.0.1', () => resolve(`http://localhost:${(server.address() as AddressInfo).port}`));
+    server.listen(port, '127.0.0.1', () => {
+      const { port: listening } = server.address() as AddressInfo;
+      allowedHosts.push(...codespaceHost(listening));
+      resolve(`http://localhost:${listening}`);
+    });
   }),
 });
+
+/** In a GitHub Codespace, the forwarded address of the port, which reaches the server under its own Host. */
+function codespaceHost(port: number): string[] {
+  const { CODESPACE_NAME: name, GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN: domain } = process.env;
+  return name && domain ? [`${name}-${port}.${domain}`] : [];
+}

@@ -8,6 +8,11 @@ After a scan, the page shows `<owner>/<repo> · N skills`, then each skill as in
 - Same grouping and order as the CLI; warnings in a collapsed list below the skills
 - Any error replaces the result with its message
 Repository text is shown as text, never as HTML.
+## Host check
+Answer only requests addressed to this server, so a page that rebinds its own domain to `127.0.0.1` cannot scan with `GITHUB_TOKEN` (DNS rebinding).
+- Accepted `Host`: `localhost`, `127.0.0.1` or `[::1]` with the server's port, case-insensitive
+- In a GitHub Codespace, also its forwarded address `<CODESPACE_NAME>-<port>.<GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN>`
+- Any other or missing `Host` → `421` and `{ error }`, before anything else is done
 ## API
 `GET /api/scan?repo=<GitHub URL>` → `200` with the scan result as JSON: `{ repository, skills, warnings }` (see [analysis](analysis.md)).
 - Not a GitHub repository URL → `400` and `{ error }`; local directories are **not** accepted
