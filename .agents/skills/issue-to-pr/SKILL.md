@@ -15,8 +15,24 @@ gh issue view <n> --json number,title,body,labels,comments,url
 
 - Restate the requested behaviour in one or two sentences, including the comments: later comments
   often narrow or change the request.
-- If the issue is ambiguous or contradicts the spec, stop and ask before writing code. Do not guess
-  a behaviour the spec does not already imply. Post the questions on the issue (step 7) too.
+- If the issue leaves a decision open, is ambiguous or contradicts the spec, resolve it through
+  the Slack thread below before writing code that depends on the answer. Do not guess a behaviour
+  the spec does not already imply. Include the questions in the issue result (step 7) too.
+
+### Resolve open decisions in Slack
+
+- Use the Slack Web API authenticated with the `SLACK_BOT_TOKEN` environment variable. Never
+  print the token or write it to repository files.
+- Post the question with `chat.postMessage` to channel `C0CMJBN0ZEG`, including the issue URL,
+  the decision needed and enough context to answer. Save the returned message `ts`.
+- Wait for a human reply in that message's thread: poll `conversations.replies` with channel
+  `C0CMJBN0ZEG` and the saved `ts`, following pagination and respecting rate limits. Ignore the
+  parent message and bot messages. Do not treat silence as agreement or post duplicate questions.
+- If the reply leaves the decision unresolved, ask a follow-up in the same thread using
+  `thread_ts` and keep waiting. Once resolved, use the answer in the spec and implementation,
+  and summarize the decision with a thread link in the issue result (step 7).
+- If the token is missing or Slack posting or thread reading fails, report the blocker as
+  `Need input` in step 7; do not guess or proceed with work that depends on the decision.
 
 ## 2. Branch
 
