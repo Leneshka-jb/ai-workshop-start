@@ -3,13 +3,15 @@
 `GITHUB_TOKEN`, optional, as for the CLI. *Nothing is stored.*
 ## Page
 `GET /`: an input for a **GitHub repository link** or a **GitHub organization link**, and a *Scan* button.
-After a repository scan, the page shows the header described in [Filter](#filter), the filter input under it, then each skill as in [analysis](analysis.md):
-- **name**, the full **description** (if any), and every **link**, labelled with its path, opening the pinned GitHub file
+After a repository scan, the page shows the header described in [Filter](#filter), the filter input and the [project](#project) selector under it, then a table of the skills as in [analysis](analysis.md):
+- Columns **Name**, **Description**, **Links**; one row per skill: its name, the full description (empty if none), and every **link**, labelled with its path, opening the pinned GitHub file
+- Styled: coloured column headings, striped and highlighted rows, links as path labels; follows the system light or dark theme
+- No skills to show (none found, or none matching) → no table
 - Same grouping and order as the CLI; warnings in a collapsed list below the skills
 - Any error replaces the result with its message
 
 An organization link (`https://github.com/<owner>`, one path segment) lists its repositories instead, as in [analysis](analysis.md#organization):
-- `<owner> · N repositories`, then each repository: its `owner/name` linking to it on GitHub, and `N skills`, or `not scanned`
+- `<owner> · N repositories`, then a table with the columns **Repository**, **Skills** and one without a heading; one row per repository: its `owner/name` linking to it on GitHub, and `N skills`, or `not scanned`
 - Each repository has a *Scan* button that scans it as if its link had been entered
 - Warnings in a collapsed list below the repositories
 Repository text is shown as text, never as HTML.
@@ -25,6 +27,15 @@ The filter text, trimmed, keeps the skills whose **name** or **description** con
 - Nothing matches → `<owner>/<repo> · No matching skills`
 - No skills found even before filtering, with or without a filter → `<owner>/<repo> · No skills found`
 - Matches keep the order of the scan; warnings are not filtered
+## Project
+A repository may hold several projects; a selector, next to the filter, lists only the skills of one of them.
+- A link's project: the directories of its path before the first hidden directory (`.agents`, `.claude`, …) or one named `skills`; with neither, the directories above the skill's own directory. None left → the repository root
+  - `plugins/kotlin/.claude/skills/gradle/SKILL.md` → `plugins/kotlin`; `plugins/java/skills/review/SKILL.md` → `plugins/java`; `tools/lint/SKILL.md` → `tools`; `.agents/skills/setup/SKILL.md` → root
+- A skill belongs to the project of each of its links, so a skill copied into two projects is in both
+- Options: `All projects` (chosen after every scan), then `(repository root) · N skills` first, then every other project sorted by path (case-sensitive, locale-independent), as `<project> · N skills`
+- Shown only for a repository result with two or more projects; hidden like the filter otherwise
+- Choosing a project, in the page, never scans again: the table keeps the skills with a link in it, and shows only those links
+- The filter applies within the chosen project; the header becomes `<owner>/<repo> · <project> · …` (`(repository root)` for the root), its counts as in [Filter](#filter) with N the skills of that project
 ## Host check
 Answer only requests addressed to this server, so a page that rebinds its own domain to `127.0.0.1` cannot scan with `GITHUB_TOKEN` (DNS rebinding).
 - Accepted `Host`: `localhost`, `127.0.0.1` or `[::1]` with the server's port, case-insensitive

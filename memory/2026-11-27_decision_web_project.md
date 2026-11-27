@@ -1,0 +1,1 @@
+[2026-11-27] [Decision] Web view "project" of a skill link = path directories before the first hidden dir or `skills` dir, else the dirs above the skill's own dir; root = `.`. Computed in the page only (no API param), selector shown only for 2+ projects. See spec/web.md#project.

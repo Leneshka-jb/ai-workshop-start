@@ -220,8 +220,11 @@ async function page(input: string, api: (url: string) => unknown) {
     form: node('form', node('input'), node('button')),
     repo: node('input'),
     filter: node('input'),
+    project: node('select'),
     status: node('div'),
-    skills: node('div'),
+    table: node('table'),
+    columns: node('tr'),
+    skills: node('tbody'),
     warnings: node('details', node('summary'), node('ul')),
   };
   const requested: string[] = [];
@@ -266,12 +269,15 @@ test('the page: a repository\'s Scan button scans that repository; the filter sh
   const { requested, elements } = await page('https://github.com/Acme', (url) => (url.startsWith('/api/organization') ? ORGANIZATION : SCAN));
   assert.equal(elements.status.textContent, 'Acme · 2 repositories');
   assert.equal(elements.filter.hidden, true, 'no filter for an organization');
+  assert.equal(elements.project.hidden, true, 'no project selector for an organization');
   const rows = elements.skills.children;
-  assert.deepEqual(rows.map((row) => row.children.map((child) => child.textContent)), [
+  // A table row per repository: one cell each for the link, the count and the Scan button.
+  assert.deepEqual(elements.columns.children.map((th) => th.textContent), ['Repository', 'Skills', '']);
+  assert.deepEqual(rows.map((row) => row.children.map((td) => td.children[0].textContent)), [
     ['Acme/agents', '1 skill', 'Scan'],
     ['Acme/empty', 'not scanned', 'Scan'],
   ]);
-  const button = rows[0].children[2];
+  const button = rows[0].children[2].children[0];
   for (const listener of button.listeners.click) listener({ preventDefault() {} });
   await submitted; // the click submits the form
   assert.equal(elements.repo.value, 'https://github.com/Acme/agents');
