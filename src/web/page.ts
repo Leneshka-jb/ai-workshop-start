@@ -99,6 +99,7 @@ $('form').addEventListener('submit', async (event) => {
   $('table').hidden = true;
   $('skills').replaceChildren();
   $('warnings').hidden = true;
+  $('warnings').open = false;
   $('form').querySelector('button').disabled = true;
   try {
     const organization = isOrganization(repo);
