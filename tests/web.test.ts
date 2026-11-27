@@ -56,8 +56,9 @@ test('GET / → on a narrow screen every table row is a block of its cells, labe
   assert.ok(rules.includes('td.description:empty { display: none; }'));
   assert.ok(rules.includes('td.description::before { content: "Description"; }'));
   assert.ok(rules.includes('td.links::before { content: "Links"; margin-bottom: .15rem; }'));
-  // Under 64rem a long name wraps; a link label breaks only where it must, at any width.
+  // Under 64rem a long name wraps; a long word in a description, and a link label, break only where they must, at any width.
   assert.match(page, /^  @media \(max-width: 64rem\) \{ td\.name \{ white-space: normal; overflow-wrap: anywhere; \} \}$/m);
+  assert.match(page, /^  td\.description \{[^}]*overflow-wrap: anywhere; \}$/m);
   assert.match(page, /^  td\.links a \{[^}]*overflow-wrap: anywhere; \}$/m);
   assert.doesNotMatch(page, /word-break: break-all/);
   // The hidden table stays hidden on a narrow screen: the id rule outranks the block display.

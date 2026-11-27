@@ -34,7 +34,7 @@ export const PAGE = `<!doctype html>
   tbody tr:nth-child(even) td { background: var(--stripe); }
   tbody tr:hover td { background: var(--accent-soft); }
   td.name { font-weight: 600; white-space: nowrap; color: var(--accent); }
-  td.description { color: light-dark(#2d2b3a, #dcdae8); }
+  td.description { color: light-dark(#2d2b3a, #dcdae8); overflow-wrap: anywhere; }
   td.links { width: 18rem; }
   td.links ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .25rem; }
   td.links a { display: inline-block; font: .78rem ui-monospace, monospace; padding: .1rem .45rem; border-radius: 4px; background: var(--accent-soft); color: var(--accent); text-decoration: none; overflow-wrap: anywhere; }
