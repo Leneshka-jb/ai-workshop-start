@@ -277,6 +277,7 @@ function showClusters({ total, clusters, unclustered }) {
 
 function showWarnings(warnings) {
   $('warnings').hidden = true;
+  $('warnings').open = false;
   if (warnings.length) {
     const box = $('warnings');
     box.querySelector('summary').textContent = warnings.length + (warnings.length === 1 ? ' warning' : ' warnings');

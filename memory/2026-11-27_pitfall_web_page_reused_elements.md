@@ -1,0 +1,1 @@
+[2026-11-27] [Pitfall] The web page reuses the same elements (e.g. `<details id="warnings">`) for every result, so any state the user can change on them (like `open`) must be reset in the show function for each new result (issue #19). The vm DOM harness in tests/organization.test.ts only models properties it declares on `Node`; add new ones (`open`) there to test them.

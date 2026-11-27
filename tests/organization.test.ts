@@ -194,7 +194,7 @@ test('the page sends an organization link to /api/organization and lists its rep
 /** Just enough DOM to run the page's script: elements by id, children, text and listeners. */
 type Node = {
   tag: string; textContent: string; value: string; hidden: boolean; disabled: boolean; className: string;
-  href?: string; type?: string; target?: string; rel?: string; children: Node[];
+  href?: string; type?: string; target?: string; rel?: string; open?: boolean; children: Node[];
   listeners: Record<string, ((event: { preventDefault(): void }) => unknown)[]>;
   append(...nodes: Node[]): void; replaceChildren(...nodes: Node[]): void; querySelector(tag: string): Node;
   addEventListener(type: string, listener: (event: { preventDefault(): void }) => unknown): void; requestSubmit(): void;
@@ -289,4 +289,22 @@ test('the page: a repository\'s Scan button scans that repository; the filter sh
   assert.equal(requested.at(-1), '/api/scan?repo=https%3A%2F%2Fgithub.com%2FAcme%2Fagents');
   assert.equal(elements.status.textContent, 'Acme/agents · No skills found');
   assert.equal(elements.filter.hidden, false, 'the filter, under the repository header');
+});
+
+test('the page: warnings are collapsed on every new result, even after the last ones were expanded', async () => {
+  const warned = { ...SCAN, warnings: ['skills/broken/SKILL.md: malformed front matter'] };
+  const { elements, submit } = await page('https://github.com/Acme/agents', (url) =>
+    url.startsWith('/api/organization') ? { ...ORGANIZATION, warnings: ['Acme/empty: not scanned'] } : warned);
+  const warnings = elements.warnings;
+  assert.equal(warnings.hidden, false);
+  assert.equal(warnings.querySelector('summary').textContent, '1 warning');
+  assert.ok(!warnings.open, 'collapsed after the first scan');
+  for (const input of ['https://github.com/Acme', 'https://github.com/Acme/agents']) {
+    warnings.open = true; // the user expands the list
+    elements.repo.value = input;
+    await submit();
+    assert.equal(warnings.hidden, false, input);
+    assert.equal(warnings.querySelector('summary').textContent, '1 warning', input);
+    assert.equal(warnings.open, false, `collapsed again after scanning ${input}`);
+  }
 });
