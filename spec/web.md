@@ -36,6 +36,15 @@ A repository may hold several projects; a selector, next to the filter, lists on
 - Shown only for a repository result with two or more projects; hidden like the filter otherwise
 - Choosing a project, in the page, never scans again: the table keeps the skills with a link in it, and shows only those links
 - The filter applies within the chosen project; the header becomes `<owner>/<repo> · <project> · …` (`(repository root)` for the root), its counts as in [Filter](#filter) with N the skills of that project
+## Clusters
+A *Clasterize* button next to the link form groups the skills saved in `data/jetbrainsSkills.txt` by the words they share. It needs no scan and never scans.
+- The file: one skill per line, `<name>: <description>`, split at the first `:`; both parts trimmed; a line without `:` is a name with no description; blank lines are ignored. It holds the skills of the `JetBrains` organization's repositories, as far as a scan got before the GitHub rate limit; it is generated once and committed, not by the server
+- A skill's **words**: its name and description, lowercased (locale-independent), split at every character that is not `a`–`z` or `0`–`9`; only words of 4 or more characters, without common English words (`with`, `that`, `this`, `from`, `when`, `your`, `using`, `skill`, …); each word counted once per skill
+- **Shared words heuristic**, repeated while it finds a word: of the skills not yet in a cluster, take the word that the most of them have (at least 2; a tie goes to the word first in code-point order); those skills form a cluster named by that word
+- Clusters in the order they were formed; the skills of each in file order. The skills left, sharing no word with another, form a last `Unclustered` group (none when every skill is in a cluster)
+- The section, under the link form and over the result of a scan: `N skills · M clusters`, a *Hide* button, then each cluster as `<word> · K skills` and its skill names, the description shown on hover; `Unclustered · K skills` last
+- *Hide* hides the whole section; *Clasterize* shows it again, with the file read again. While it reads: `Clustering…` and the button disabled; an error → its message in the section
+- A scan, a filter or a project choice leaves the section as it is
 ## Host check
 Answer only requests addressed to this server, so a page that rebinds its own domain to `127.0.0.1` cannot scan with `GITHUB_TOKEN` (DNS rebinding).
 - Accepted `Host`: `localhost`, `127.0.0.1` or `[::1]` with the server's port, case-insensitive
@@ -50,6 +59,9 @@ Answer only requests addressed to this server, so a page that rebinds its own do
 - Not a GitHub organization URL → `400` and `{ error }`
 - Missing organization, unreachable GitHub, rate limit → `502` and `{ error }`
 
-Both endpoints:
+`GET /api/clusters` → `200` with `{ source, total, clusters: [{ word, skills: [{ name, description }] }], unclustered: [{ name, description }] }`, as in [Clusters](#clusters); `source` is `data/jetbrainsSkills.txt`, `total` the number of skills in it.
+- Missing or unreadable file → `500` and `{ error: "Cannot read data/jetbrainsSkills.txt: <reason>" }`
+
+All endpoints:
 - Unknown path → `404`; methods other than `GET` → `405`
 - An unreadable request URL → `400`; any unexpected error → `500` and `{ error }`. No request stops the server

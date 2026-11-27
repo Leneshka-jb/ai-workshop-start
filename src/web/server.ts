@@ -1,6 +1,9 @@
 // The web view: a page with a repository link input, and a JSON endpoint that scans it.
-// Only GitHub repositories: the page must not read the server's own files.
+// Only GitHub repositories: the page must not read the server's own files, save the one fixed file of saved skills.
+import { readFile } from 'node:fs/promises';
 import { createServer, type Server } from 'node:http';
+import { fileURLToPath } from 'node:url';
+import { clusterSkills, parseSavedSkills } from '../core/cluster.ts';
 import { AtlasError } from '../core/errors.ts';
 import { filterSkills } from '../core/filter.ts';
 import { openGitHub, openOrganization, parseGitHubOwnerUrl, parseGitHubUrl, type Fetch } from '../core/github.ts';
@@ -14,12 +17,19 @@ export type WebOptions = {
   token?: string;
   /** Host headers accepted besides localhost, 127.0.0.1 and [::1] on the server's port. */
   allowedHosts?: string[];
+  /** The saved skills that /api/clusters groups; data/jetbrainsSkills.txt by default. */
+  savedSkills?: string;
 };
+
+/** Where the saved skills are, as the API names it; never a path from the request. */
+const SAVED_SKILLS = 'data/jetbrainsSkills.txt';
+const SAVED_SKILLS_FILE = fileURLToPath(new URL(`../../${SAVED_SKILLS}`, import.meta.url));
 
 /**
  * `GET /`: the page. `GET /api/scan?repo=<GitHub URL>[&filter=<text>]`: the scan result as JSON,
  * the skills that match the filter and the total before filtering.
  * `GET /api/organization?org=<GitHub URL>`: its repositories and their skill counts. Nothing is stored.
+ * `GET /api/clusters`: the skills saved in data/jetbrainsSkills.txt, clustered by the words they share.
  * No request can stop the server: an unreadable URL is a 400, anything unexpected a 500.
  * Only requests addressed to this server are answered: any other Host header is a 421, so a
  * page that rebinds its own domain to this address cannot scan with the token.
@@ -76,6 +86,17 @@ async function handle(method: string | undefined, target: string | undefined, op
     const org = url.searchParams.get('org')?.trim() ?? '';
     if (!parseGitHubOwnerUrl(org)) return json(400, { error: `Not a GitHub organization URL: ${org}` });
     return answer(json, async () => scanOrganization(await openOrganization(org, options)));
+  }
+  if (url.pathname === '/api/clusters') {
+    let text: string;
+    try {
+      text = await readFile(options.savedSkills ?? SAVED_SKILLS_FILE, 'utf8');
+    } catch (error) {
+      const reason = (error as NodeJS.ErrnoException).code ?? (error instanceof Error ? error.message : String(error));
+      return json(500, { error: `Cannot read ${SAVED_SKILLS}: ${reason}` });
+    }
+    const skills = parseSavedSkills(text);
+    return json(200, { source: SAVED_SKILLS, total: skills.length, ...clusterSkills(skills) });
   }
   return json(404, { error: 'Not found' });
 }

@@ -226,6 +226,11 @@ async function page(input: string, api: (url: string) => unknown) {
     columns: node('tr'),
     skills: node('tbody'),
     warnings: node('details', node('summary'), node('ul')),
+    clusterize: node('button'),
+    clusters: node('section'),
+    'clusters-status': node('span'),
+    'clusters-hide': node('button'),
+    'cluster-list': node('div'),
   };
   const requested: string[] = [];
   runInNewContext(script, {
