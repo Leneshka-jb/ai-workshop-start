@@ -34,10 +34,10 @@ export const PAGE = `<!doctype html>
   tbody tr:nth-child(even) td { background: var(--stripe); }
   tbody tr:hover td { background: var(--accent-soft); }
   td.name { font-weight: 600; white-space: nowrap; color: var(--accent); }
-  td.description { color: light-dark(#2d2b3a, #dcdae8); }
+  td.description { color: light-dark(#2d2b3a, #dcdae8); overflow-wrap: anywhere; }
   td.links { width: 18rem; }
   td.links ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .25rem; }
-  td.links a { display: inline-block; font: .78rem ui-monospace, monospace; padding: .1rem .45rem; border-radius: 4px; background: var(--accent-soft); color: var(--accent); text-decoration: none; word-break: break-all; }
+  td.links a { display: inline-block; font: .78rem ui-monospace, monospace; padding: .1rem .45rem; border-radius: 4px; background: var(--accent-soft); color: var(--accent); text-decoration: none; overflow-wrap: anywhere; }
   td.links a:hover { text-decoration: underline; }
   td.count { color: var(--muted); white-space: nowrap; }
   td.action { width: 1%; }
@@ -55,6 +55,24 @@ export const PAGE = `<!doctype html>
   .cluster h3 { margin: 0 0 .4rem; font-size: .85rem; color: var(--accent); }
   .cluster ul { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: .25rem; }
   .cluster li { font: .75rem ui-monospace, monospace; padding: .1rem .4rem; border-radius: 4px; background: var(--accent-soft); color: var(--accent); cursor: default; }
+  /* Narrower: a long name wraps rather than widen the table. */
+  @media (max-width: 64rem) { td.name { white-space: normal; overflow-wrap: anywhere; } }
+  /* A narrow screen: every row a block of its cells, so the page never scrolls sideways. */
+  @media (max-width: 40rem) {
+    body { margin: 1rem auto; }
+    table, tbody, tr, td { display: block; }
+    thead { display: none; }
+    tbody tr { padding: .5rem .8rem; border-bottom: 1px solid var(--line); }
+    tbody tr:last-child { border-bottom: 0; }
+    tbody tr:nth-child(even) { background: var(--stripe); }
+    tbody tr:hover { background: var(--accent-soft); }
+    td, td.links, td.action { width: auto; padding: .15rem 0; border-bottom: 0; }
+    tbody tr:nth-child(even) td, tbody tr:hover td { background: transparent; }
+    td.description::before, td.links::before { display: block; color: var(--accent); font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+    td.description:empty { display: none; }
+    td.description::before { content: "Description"; }
+    td.links::before { content: "Links"; margin-bottom: .15rem; }
+  }
   details { margin-top: 1rem; color: #b80; font-size: .9rem; }
 </style>
 </head>

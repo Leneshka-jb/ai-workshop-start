@@ -45,6 +45,26 @@ test('GET / → the page with a repository link input', async (t) => {
   assert.doesNotMatch(page, /innerHTML/);
 });
 
+test('GET / → on a narrow screen every table row is a block of its cells, labelled, so the page never scrolls sideways', async (t) => {
+  const page = await (await fetch(await serve(t))).text();
+  const narrow = /@media \(max-width: 40rem\) \{\n([^]*?)\n  \}\n/.exec(page);
+  assert.ok(narrow, 'a rule for screens under 40rem');
+  const rules = narrow[1].split('\n').map((line) => line.trim());
+  assert.ok(rules.includes('table, tbody, tr, td { display: block; }'));
+  assert.ok(rules.includes('thead { display: none; }'));
+  assert.ok(rules.includes('td, td.links, td.action { width: auto; padding: .15rem 0; border-bottom: 0; }'));
+  assert.ok(rules.includes('td.description:empty { display: none; }'));
+  assert.ok(rules.includes('td.description::before { content: "Description"; }'));
+  assert.ok(rules.includes('td.links::before { content: "Links"; margin-bottom: .15rem; }'));
+  // Under 64rem a long name wraps; a long word in a description, and a link label, break only where they must, at any width.
+  assert.match(page, /^  @media \(max-width: 64rem\) \{ td\.name \{ white-space: normal; overflow-wrap: anywhere; \} \}$/m);
+  assert.match(page, /^  td\.description \{[^}]*overflow-wrap: anywhere; \}$/m);
+  assert.match(page, /^  td\.links a \{[^}]*overflow-wrap: anywhere; \}$/m);
+  assert.doesNotMatch(page, /word-break: break-all/);
+  // The hidden table stays hidden on a narrow screen: the id rule outranks the block display.
+  assert.match(page, /#table\[hidden\] \{ display: none; \}/);
+});
+
 test('GET /api/scan → the scan result as JSON: repository, skills with all links, total, warnings', async (t) => {
   const response = await scan(await serve(t), 'https://github.com/JetBrains/example');
   assert.equal(response.status, 200);
