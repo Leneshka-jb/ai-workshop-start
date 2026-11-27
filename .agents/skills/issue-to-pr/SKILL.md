@@ -24,7 +24,10 @@ gh issue view <n> --json number,title,body,labels,comments,url
 - Use the Slack Web API authenticated with the `SLACK_BOT_TOKEN` environment variable. Never
   print the token or write it to repository files.
 - Post the question with `chat.postMessage` to channel `C0CMJBN0ZEG`, including the issue URL,
-  the decision needed and enough context to answer. Save the returned message `ts`.
+  the decision needed and only the context necessary to answer. Keep Slack questions short
+  and concise: aim for one or two sentences, ask directly, and offer brief choices when useful.
+  Link to the issue instead of repeating its background. Apply the same brevity to follow-ups.
+  Save the returned message `ts`.
 - Wait for a human reply in that message's thread: poll `conversations.replies` with channel
   `C0CMJBN0ZEG` and the saved `ts`, following pagination and respecting rate limits. Ignore the
   parent message and bot messages. Do not treat silence as agreement or post duplicate questions.
