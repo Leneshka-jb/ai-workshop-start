@@ -1,6 +1,6 @@
 # Command line
 `./skill-atlas scan <GitHub URL | directory>`
-Prints the result **at once**; *nothing is stored*.
+Prints the result **at once**; *nothing is stored*. To keep a result, `save` it to a file and `load` it later: [store](store.md).
 `GITHUB_TOKEN`, optional: a higher GitHub rate limit.
 ## Output
 ```

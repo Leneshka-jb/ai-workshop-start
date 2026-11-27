@@ -1,5 +1,5 @@
-import { readdir, readFile } from 'node:fs/promises';
-import { basename, join, resolve } from 'node:path';
+import { mkdir, readdir, readFile, rename, writeFile } from 'node:fs/promises';
+import { basename, dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { AtlasError } from './core/errors.ts';
 import { SKIPPED_DIRECTORIES } from './core/find.ts';
@@ -32,4 +32,22 @@ async function walk(root: string, directory: string, paths: string[] = []): Prom
     else if (entry.isFile()) paths.push(path);
   }
   return paths;
+}
+
+/** A saved skill-atlas file's text. */
+export function readTextFile(path: string): Promise<string> {
+  return readFile(path, 'utf8').catch((error: Error) => {
+    throw new AtlasError(`Cannot read ${path}: ${error.message}`);
+  });
+}
+
+/** Written next to the file, then renamed over it: a failed write leaves the old file whole. */
+export async function writeTextFile(path: string, text: string): Promise<void> {
+  try {
+    await mkdir(dirname(resolve(path)), { recursive: true });
+    await writeFile(`${path}.partial`, text);
+    await rename(`${path}.partial`, path);
+  } catch (error) {
+    throw new AtlasError(`Cannot write ${path}: ${(error as Error).message}`);
+  }
 }

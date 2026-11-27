@@ -1,17 +1,20 @@
 #!/usr/bin/env node
 // The Node client: a GitHub repository through the GitHub API, or a local directory; stdout and
-// stderr. Nothing is stored.
+// stderr. Only `save` writes a file.
 import type { AddressInfo } from 'node:net';
 import { run } from './commands.ts';
 import { AtlasError } from './core/errors.ts';
-import { openGitHub, parseGitHubUrl } from './core/github.ts';
-import { openDirectory } from './local.ts';
+import { openGitHub, openOrganization, parseGitHubUrl } from './core/github.ts';
+import { openDirectory, readTextFile, writeTextFile } from './local.ts';
 import { createWebServer } from './web/server.ts';
 
 const token = process.env.GITHUB_TOKEN || undefined;
 
 process.exitCode = await run(process.argv.slice(2), {
   open: (input) => (parseGitHubUrl(input) ? openGitHub(input, { fetch, token }) : openDirectory(input)),
+  openOrganization: (input) => openOrganization(input, { fetch, token }),
+  readFile: readTextFile,
+  writeFile: writeTextFile,
   print: (text) => console.log(text),
   error: (text) => console.error(text),
   // Local only: the web view listens on the loopback interface.

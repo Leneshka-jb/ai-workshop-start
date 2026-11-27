@@ -1,0 +1,1 @@
+[2026-11-27] [Pitfall] GitHub scans from this workspace need `GITHUB_TOKEN=$(gh auth token)`: anonymous API calls are rate-limited here. `https://github.com/Leneshka-jb/JetBrains` does not exist; data/jetbrainsSkills.txt was saved from the JetBrains organization (`https://github.com/JetBrains`).

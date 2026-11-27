@@ -13,6 +13,10 @@ build-tools-bump-gradle-api — Bumps the Gradle API version that Kotlin Gradle 
 …
 ```
 
+`./skill-atlas save <URL | organization URL | directory> <file>` writes the result to a file, and
+`./skill-atlas load <file>` prints it again later without GitHub; [spec/store.md](spec/store.md) has the format.
+[data/jetbrainsSkills.txt](data/jetbrainsSkills.txt) holds every skill of the JetBrains organization.
+
 Set `GITHUB_TOKEN` for a higher GitHub rate limit. `npm test` runs the tests.
 
 `./skill-atlas serve` opens a web view on http://localhost:3000: paste a GitHub repository link to see its skills, optionally filtered by name or description,
