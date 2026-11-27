@@ -135,6 +135,11 @@ async function open(base: string, repo: string, filter = '') {
     columns: new Node('tr'),
     skills: new Node('tbody'),
     warnings: new Node('details', { summary: new Node('summary'), ul: new Node('ul') }),
+    clusterize: new Node('button'),
+    clusters: new Node('section'),
+    'clusters-status': new Node('span'),
+    'clusters-hide': new Node('button'),
+    'cluster-list': new Node('div'),
   };
   const document = { getElementById: (id: string) => nodes[id], createElement: (tag: string) => new Node(tag) };
   let done!: Promise<unknown>;

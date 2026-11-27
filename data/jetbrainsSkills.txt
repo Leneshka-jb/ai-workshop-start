@@ -1,0 +1,340 @@
+1password: Set up op CLI, sign in, and read or inject secrets.
+3-statement-model: Build integrated IS/BS/CF financial workbooks in Excel.
+accelerate: Run PyTorch training across GPUs with minimal changes.
+accio: Search code with accio.cmd instead of grep, rg or find.
+actions: Guidelines for implementing IntelliJ actions (AnAction). Use those rules when you need to create or change an action in the intellij platform.
+actions: Implement or change IntelliJ `AnAction` actions and registrations.
+actual-setup: Set up Actual Computer (actual.inc) inference in Hermes.
+add-dashboard-category:
+add-dashboard-page:
+adversarial-ux-test: Roleplay a hostile user to find and triage UX pain points.
+agentmail: Give the agent its own inbox: send and receive email.
+airtable: Airtable REST API via curl. Records CRUD, filters, upserts.
+antigravity-cli: Operate the Antigravity CLI (agy): plugins, auth, sandbox.
+apple-notes: Manage Apple Notes via memo CLI: create, search, edit.
+apple-reminders: Apple Reminders via remindctl: add, list, complete.
+architecture-diagram: Dark-themed SVG architecture/cloud/infra diagrams as HTML.
+arxiv: Search arXiv papers by keyword, author, category, or ID.
+ascii-art: ASCII art: pyfiglet, cowsay, boxes, image-to-ascii.
+ascii-video: ASCII video: convert video/audio to colored ASCII MP4/GIF.
+ast-grep: AST-aware structural code search and rewrite via ast-grep.
+atspi-integration-tests: Write, review and run the pytest tests in tests/atspi/ that start a real Swing application with the wrapper and check it through libatspi: registration on the AT-SPI desktop, window and focus events, GLib-to-EDT interaction, D-Bus delivery, and the trial tests of what Orca says. Use together with the testing skill.
+audiocraft-audio-generation: AudioCraft: MusicGen text-to-music, AudioGen text-to-sound.
+axolotl: Axolotl: YAML LLM fine-tuning (LoRA, DPO, GRPO).
+baoyu-article-illustrator: Article illustrations: type × style × palette consistency.
+baoyu-comic: Knowledge comics (知识漫画): educational, biography, tutorial.
+baoyu-infographic: Infographics: 21 layouts x 21 styles (信息图, 可视化).
+bazel-test-migration: Migrate IntelliJ JPS module tests to Bazel; debug Bazel-only failures.
+bioinformatics: Gateway to 400+ genomics and computational biology skills.
+blackbox: Delegate coding tasks to the Blackbox AI multi-model CLI.
+blast-radius: Experimental jbcontext org-wide blast-radius analysis across multiple repositories. Use when Codex needs to estimate the impact of changing an API, endpoint, schema, event, shared library, config, feature flag, data model, behavior, or dependency by finding producers, consumers, owners, tests, and related repos.
+blocked-page-recovery: Recover blocked/paywalled/WAF'd pages via fallbacks.
+blogwatcher: Monitor blogs and RSS/Atom feeds via blogwatcher-cli tool.
+box: Box manages cloud files, sharing, search, and metadata.
+bugfix-workflow: Structured MPS bugfix workflow driven by a YouTrack issue ID — preflight tool checks, version/branch derivation, parallel-agent problem analysis, solution design, branch creation, implementation, review, TeamCity feature-branch validation, and YouTrack updates. Use when the user invokes "/bugfix", "/bugfix-workflow", asks to "fix a bug", "work on a bug", "investigate an issue", or provides a YouTrack issue ID.
+build-jar: Build java-atk-wrapper.jar with the bundled native library, and optionally copy it to a target path. Use when asked to build, rebuild, or install the jar, or to test a wrapper change in an application.
+bundled-keep: Existing task skill that should remain after job-level skill injection.
+canvas: Fetch Canvas LMS courses and assignments via API token.
+changelog: Maintains the IdeaVim changelog (CHANGES.md). Use when updating the changelog, documenting releases, or reviewing commits/PRs for changelog entries.
+changelog: Update CHANGELOG.md with a new release section from the latest GitHub release
+chroma: Embedding database for RAG and semantic search.
+claude-code: Delegate coding to Claude Code CLI (features, PRs).
+claude-design: Design one-off HTML artifacts (landing, deck, prototype).
+clickhouse-update: Evaluate and ship a ClickHouse version update — restore-compat check, dashboard-query benchmark against prod version, evaluation record, prod rollout
+clip: Zero-shot image classification and image-text search.
+cloudflare-temporary-deploy: Deploy a Worker live, no account, via wrangler --temporary.
+code-style: Apply IntelliJ Kotlin and Java code style when writing or reviewing.
+code-style: Code style rules for IntelliJ codebase. Use when writing or reviewing code for style compliance.
+code-wiki: Generate wiki docs + Mermaid diagrams for any codebase.
+codebase-inspection: Inspect codebases w/ pygount: LOC, languages, ratios.
+codex: Delegate coding to OpenAI Codex CLI (features, PRs).
+comfyui: Generate images, video, and audio via diffusion workflows.
+commits: Read before each commit, amend or reword: the subject SafePush accepts and the body.
+commits: Use this skill whenever the user asks to commit changes, write or fix a commit message, amend or rename a commit, or do a workflow that includes committing in the IntelliJ repository. This is a thin repo-specific overlay: use IntelliJ commit format, write full commit messages by default, and keep requested suffixes such as IJ-MR trailers in a final separate paragraph.
+compare-python-typecheckers: Compare Python type inference with ty, pyrefly, and basedpyright.
+competitor-news-monitor: Watch named companies for material news; cited digests.
+compose-ui: Write or audit Compose Desktop UI state, effects, and boundaries.
+comps-analysis: Build comparable-company valuation workbooks in Excel.
+computer-use: Drive the desktop in the background without stealing focus.
+concept-diagrams: Generate flat, minimal educational SVG visuals as HTML.
+conda-env-tests: Bump the Miniconda version of the Python conda env tests.
+content-module: Create, convert or extract an IntelliJ plugin content module.
+context-install: Install jbcontext and complete first-time setup - login and configure agent integration. Use when `jbcontext` is not found or the user asks to install jbcontext.
+context-integrate: Fit jbcontext into a repository's own agent guide by writing short repo notes. Use when the user asks to integrate jbcontext with this repository, or when `jbcontext repo-notes show --check` reports stale notes.
+context-research: Research and understand unfamiliar codebases using semantic search with `jbcontext search`
+context-review: Use this skill to review code changes using semantic search to understand context and impact
+context-search: Semantic code search for discovering and understanding code by meaning rather than keywords. - Use this skill when you need to find code whose location you don't already know - e.g., when the task asks 'where is X', 'how does Y work', or describes behavior or intent without naming exact symbols. - When not to use: if you already know the relevant file, class, or symbol (use direct navigation or keyword search instead), or for non-code-discovery tasks such as git operations, builds, tests, or reviewing an existing diff.
+create-adapter: Scaffold a new Harbor benchmark adapter by running `harbor adapter init` and then guide implementation using the Adapters Agent Guide as the authoritative spec.
+create-task: Create a new Harbor task for evaluating agents. Use when the user wants to scaffold, build, or design a new task, benchmark problem, or eval. Guides through instruction writing, environment setup, verifier design (pytest vs Reward Kit vs custom), and solution scripting.
+creative-ideation: Generate ideas via named methods from creative practice.
+darwinian-evolver: Evolve prompts/regex/SQL/code with Imbue's evolution loop.
+datalore-notebook: Work with Datalore workspaces and notebooks through the bundled CLI. Use workspace commands for workspace-scoped resources and notebook commands for notebook-scoped content such as cells, reports, files, resource attachments, kernels, and definitions. Requires uv.
+dcf-model: Build discounted cash flow valuation workbooks in Excel.
+debugging: Debug IntelliJ IDE failures.
+debugging: Debugging techniques and tools for IntelliJ development. Use when debugging IDE issues or investigating failures.
+dependency-search: Experimental jbcontext org-wide dependency search across multiple repositories. Use when need to find APIs in other repositories, or dependency configuration are used across repos for upgrades, removals, CVEs, migrations, or ownership discovery.
+design-md: Author/validate/export Google's DESIGN.md token spec files.
+doc-sync: Keeps IdeaVim documentation in sync with code changes. Use this skill when you need to verify documentation accuracy after code changes, or when checking if documentation (in doc/, README.md, CONTRIBUTING.md) matches the current codebase. The skill can work bidirectionally - from docs to code verification, or from code changes to documentation updates.
+docker-management: Manage Docker containers, images, volumes, and Compose.
+document-to-action-items: Extract cited obligations, deadlines, tasks from documents.
+docx: Create, read, edit, template, and review Word .docx files.
+dogfood: Exploratory QA of web apps: find bugs, evidence, reports.
+domain-intel: Passive recon of subdomains, SSL certs, WHOIS, and DNS.
+driver-ui-tests: Write IntelliJ UI tests with IDE Starter or UI Driver, or run one off-screen to verify a change.
+drop-platform-support: Drops support for an old IntelliJ platform version in the JetBrains Academy plugin — removes `branches/<old>` code, moves shared platform-specific code to the main source set, and fixes `BACKCOMPAT` comments and `isAtLeast<version>` checks. Use when asked to "drop platform 261", "drop 2026.1 support", or "remove support for an old IntelliJ platform version".
+drug-discovery: Drug discovery: ChEMBL search, drug-likeness, interactions.
+dspy: DSPy: declarative LM programs, auto-optimize prompts, RAG.
+duckduckgo-search: Free keyless web, news, and image search via ddgs.
+duplicate-and-dead-code: Find semantic copies and dead code before a plan or a review.
+eel: Use IntelliJ EEL APIs for process execution, paths, WSL, or Docker.
+email-inbox-triage: Triage an inbox: prioritize threads, draft replies safely.
+evaluating-llms-harness: lm-eval-harness: benchmark LLMs (MMLU, GSM8K, etc.).
+evm: Read-only EVM client: wallets, tokens, gas across 8 chains.
+excalidraw: Hand-drawn Excalidraw JSON diagrams (arch, flow, seq).
+excel-author: Build auditable financial workbooks headless via openpyxl.
+extensions-api-migration: Migrates IdeaVim extensions from the old VimExtensionFacade API to the new @VimPlugin annotation-based API. Use when converting existing extensions to use the new API patterns.
+faiss: Fast vector similarity search at billion scale.
+fastmcp: Build, test, and deploy Python MCP servers.
+findmy: Track Apple devices/AirTags via FindMy.app on macOS.
+fitness-nutrition: Workout planning, macros, and body metrics via wger/USDA.
+fix-bug: End-to-end bug fix workflow for the Exposed project. Accepts a GitHub issue (#NUMBER), YouTrack issue (EXPOSED-NUMBER), or YouTrack URL (https://youtrack.jetbrains.com/issue/EXPOSED-NUMBER). Fetches the issue, creates a failing reproducer test, commits on a new branch, implements the fix, validates, and opens a PR. Use this skill whenever the user wants to fix a bug from an issue tracker, mentions a EXPOSED issue number, or references a GitHub issue to fix.
+fix-project-leak-from-tc-report: Fix TeamCity project-leak test failures.
+flash-attention: Speed up long-sequence transformer training and inference.
+frontend:
+generate-greeting: Generate a greeting message and write it to a file.
+gif-search: Search/download GIFs from Tenor via curl + jq.
+git-commit: Write git commit messages and make commits in this repository following its message rules (YouTrack ticket or label subject, a body that explains why, no Co-Authored-By trailer). Use when asked to commit, split changes into commits, amend or reword a commit message.
+git-workflow: IdeaVim git workflow conventions covering commits, branches, PRs, and CI. Use when creating commits, managing branches, creating pull requests, reviewing git history, or any git-related activity in the IdeaVim project.
+github-auth: GitHub auth setup: HTTPS tokens, SSH keys, gh CLI login.
+github-code-review: Review PRs: diffs, inline comments via gh or REST.
+github-issue-to-pr: Carry a GitHub issue to a verified PR with honest CI state.
+github-issues: Create, triage, label, assign GitHub issues via gh or REST.
+github-pr-workflow: GitHub PR lifecycle: branch, commit, open, CI, merge.
+github-repo-management: Clone/create/fork repos; manage remotes, releases.
+gitnexus-explorer: Serve an interactive codebase knowledge graph web UI.
+godmode: Jailbreak LLMs: Parseltongue, GODMODE, ULTRAPLINIAN.
+godot-trace: Trace a running Rider to debug Godot or GDScript behaviour that fails only in the IDE.
+google-workspace: Gmail, Calendar, Drive, Docs, Sheets via gws CLI or Python.
+google_meet: Join a Google Meet call, transcribe live captions, optionally speak in realtime, and do the followup work afterwards. Use when the user asks the agent to sit in on a meeting, take notes, summarize, respond in-call, or action items from it.
+grok: Delegate coding to xAI Grok Build CLI (features, PRs).
+grounded-citations: Ground answers and documents in cited, verifiable sources.
+guidance: Constrain LLM output with grammars; guarantee valid JSON.
+har-derived-api-client: Record a site's XHR into a HAR, derive an HTTP client.
+harbor-exec: Use when working with Harbor's `harbor exec` CLI workflow: compiling files, directories, or globs into Harbor tasks; running map jobs; configuring artifacts and existence-only verification; using map-reduce; writing or reviewing ExecConfig YAML/JSON/TOML; or debugging command behavior, config validation, and job outputs.
+heartmula: HeartMuLa: Suno-like song generation from lyrics + tags.
+here-now: Publish sites to {slug}.here.now and store files in Drives.
+hermes-agent-skill-authoring: Author in-repo SKILL.md files: frontmatter and structure.
+hermes-agent: Use, configure, theme, extend, and orchestrate Hermes Agent.
+hermes-s6-container-supervision: Modify or debug s6 services in the Hermes Docker image.
+himalaya: Himalaya CLI: IMAP/SMTP email from terminal.
+honcho: Configure and troubleshoot Honcho memory for Hermes.
+huggingface-hub: HuggingFace hf CLI: search/download/upload models, datasets.
+huggingface-tokenizers: Fast BPE/WordPiece tokenization and custom vocab training.
+humanizer: Humanize text: strip AI-isms and add real voice.
+hyperframes: Render MP4/WebM videos from HTML compositions.
+hyperliquid: Hyperliquid market data, account history, trade review.
+icons: Add or review SVG icons, dark variants, Icons classes, icon-robots.
+ide-diagnostics-mcp: Inspect a running IntelliJ IDE for freezes or blocked threads via MCP.
+imessage: Send and receive iMessages/SMS via the imsg CLI on macOS.
+inference-sh-cli: Run 150+ AI apps (image, video, LLM) via inference.sh CLI.
+inspecting-hermes-desktop-dom: Read the live Hermes desktop DOM/CSS over CDP.
+instructor: Structured LLM outputs validated with Pydantic.
+issues-deduplication: Handles deduplication of YouTrack issues. Use when cleaning up duplicate issues, consolidating related bug reports, or organizing issue tracker.
+java-unit-tests: Write, review and run the JUnit tests in wrapper/test/ for the Java layer (wrapper/org/GNOME/Accessibility/): Swing event translation, JNI upcalls, focus handling, context registration. Use together with the testing skill when changing the Java layer, and for requests to add, fix or explain Java unit tests.
+jewel: Jewel UI: build, audit, Markdown, Swing interop, PRs and releases.
+jna: Implement or debug JNA bindings and ABI layouts in Kotlin or Java.
+jupyter-notebook: Iterative Python via live Jupyter kernel (hamelnb).
+jvm-imports: Use when Java or Kotlin code in a project open in IntelliJ IDEA needs its imports. Trigger right after you write, paste, or move such code. Trigger on a name the file does not import yet: a class, a static method, a static field, an extension function, a top-level function, a typealias, or an enum entry. Trigger also when a build or an inspection reports an unresolved name in a .java or a .kt file. Do not use it for another language, for an unused import, or for a rename.
+kanban-video-orchestrator: Plan and run multi-agent video production pipelines.
+kotlin-ui-dsl: Write IntelliJ dialogs and settings with Kotlin UI DSL v2 panels.
+kotlin-ui-swing-component-architecture: Design IntelliJ Swing UI components, state flow, and EDT work.
+lambda-labs: On-demand GPU cloud instances for ML training.
+lbo-model: Build leveraged buyout workbooks with IRR/MOIC in Excel.
+llama-cpp: llama.cpp local GGUF inference + HF Hub model discovery.
+llava: Vision-language chat: VQA, captioning, image dialogue.
+llm-wiki: Karpathy's LLM Wiki: build/query interlinked markdown KB.
+manim-video: Manim CE animations: 3Blue1Brown math/algo videos.
+maps: Geocode, POIs, routes, timezones via OpenStreetMap/OSRM.
+markdown-library-update: Update markdown-jvm and regenerate Bazel/Fleet metadata.
+mcp-oauth-remote-gateway: Manual OAuth for remote MCP servers on headless gateways.
+mcporter: List, auth, and call MCP servers/tools from the terminal.
+meeting-action-items: Turn meeting notes into cited decisions, owners, tickets.
+meme-generation: Create meme PNGs from templates with Pillow text overlay.
+memento-flashcards: Spaced-repetition flashcards: create, review, quiz, export.
+merge-reconciler: Neutral third-party resolution of agent merge conflicts.
+merger-model: Build M&A accretion/dilution workbooks in Excel.
+migrate-settings-to-compose-swing: Move a Swing settings page to Compose Swing, with previews and tests.
+migrate-to-1.0: Migrates a Kotlin project from Exposed 0.61.0 to Exposed 1.0. Scans Kotlin sources and build files, applies the mechanical changes documented in the official 1.0 migration guide (package renames, JDBC module moves, SqlExpressionBuilder lambda → top-level imports, build dependency bumps), and produces a report of items that need manual review. Use when the user wants to upgrade an existing Exposed 0.61.0 project to 1.0; for older 0.x versions the skill emits a compatibility warning and proceeds only with user confirmation.
+minecraft-modpack-server: Host modded Minecraft servers (CurseForge, Modrinth).
+modal: Serverless GPU cloud for ML jobs and model APIs.
+modcommand-migration: Convert LocalQuickFix or IntentionAction to the ModCommand API.
+module-dependencies: Add or modify IntelliJ module dependencies in `.iml` files.
+module-set-pluginization: Convert Product DSL module sets into bundled wrapper plugins.
+mpp-agent: Pay HTTP 402 APIs via Machine Payments Protocol (MPP).
+mps-aspect-accessories: Wire MPS module and model dependencies, used languages, used devkits, extended languages, runtime solutions, accessory models, and language/dependency versions. Use when adding/removing module dependencies, importing languages or devkits into a model, declaring runtime solutions, or shipping accessory content visible to consumers without explicit import.
+mps-aspect-actions: Use when defining or editing MPS node factories (the "actions" aspect) — `NodeFactories` roots, per-concept `NodeFactory` setup functions that initialize a freshly created node and optionally copy data from a replaced `sampleNode`, plus the actions aspect's `CopyPasteHandlers` and `PasteWrappers` roots. Reach for this skill when a substitution, side transform, completion replacement, or `add new initialized(...)` should preserve fields from the node it is replacing, or when defaults set in a constructor are not enough.
+mps-aspect-behavior: Use when defining or editing MPS `ConceptBehavior` — per-concept methods (non-virtual / virtual / abstract / static / virtual static), constructors, virtual dispatch (MRO), super and interface-default calls (`super<Interface>.method`), overriding methods from `lang.core.behavior` interfaces such as `ScopeProvider.getScope` / `INamedConcept.getName` / `BaseConcept.getPresentation`, calling sibling methods (`LocalBehaviorMethodCall`) and behavior methods from other aspects via `node.method(...)`. Reach for this skill whenever the task involves authoring or modifying `<lang>/languageModels/behavior.mps`.
+mps-aspect-constraints: Use when defining or editing MPS language constraints — property validators / setters / getters, referent search scopes (imperative or inherited via `ScopeProvider.getScope`), `referentSetHandler` side effects, default-scope blocks, `canBeChild` / `canBeParent` / `canBeAncestor` / `canBeRoot` placement rules, `defaultConcreteConcept` for abstract concepts, `set <read-only>` and `{name}` aliasing, and scope helpers (`SimpleRoleScope`, `ListScope`, `CompositeScope`, `HidingByNameScope`). Reach for this skill whenever the task involves authoring or modifying `<lang>/languageModels/constraints.mps`.
+mps-aspect-dataflow: Use when defining or debugging MPS dataflow builders for a concept — control/data flow declarations that drive reachability analysis and variable-use checking. Covers DataFlowBuilderDeclaration, BuilderBlock, emit instructions (code for, jump, ifjump, label, read, write, ret, mayBeUnreachable), positions (AfterPosition, BeforePosition, LabelPosition), the jetbrains.mps.lang.dataFlow language, the NodeParameter implicit, BL+smodel usage inside builder bodies, and IBuilderMode for advanced analyses such as nullable/non-null tracking.
+mps-aspect-editor-menus-and-keymaps: Use when authoring the **non-layout** parts of the MPS editor aspect — what happens when the user types, presses a key, triggers completion, pastes, or invokes a context action. Covers action maps (`CellActionMapDeclaration`), cell keymaps (`CellKeyMapDeclaration`), transformation menus (`TransformationMenu` with a default or named `type`, `TransformationMenuContribution`), substitute menus (`SubstituteMenu` default or named, `SubstituteMenuPart_Action`, contributions), side transforms (LEFT/RIGHT) and when typed text applies an item, which menu a cell consults, operator replacement that keeps operands, legacy cell menus, paste wrappers and copy-paste handlers (in the actions language), completion styling, reference presentation, two-step deletion (`approveDelete`), and the editor selection API. Trigger terms: `actionMap`, `keyMap`, `delete_action_id`, `transformationMenu`, `superconcepts menu`, `substituteMenu`, `Ctrl+Space`, `Ctrl+Alt+B`, side transform, paste wrapper, completion styling, `PasteWrappers`, `CopyPasteHandlers`. For the **layout** side (cells, layouts, style sheets) use `mps-aspect-editor` instead.
+mps-aspect-editor: Use when creating or changing MPS editor definitions — the overall workflow from scaffolding a `ConceptEditorDeclaration` through componentizing reusable `EditorComponentDeclaration`s, refining cell models and cell layouts, applying style sheets and indent-layout style items, wiring smart references, leveraging inheritance via super-concepts and interfaces, inspecting (`mps_mcp_print_node` in its five formats) and validating (`check_root_node_problems`). Covers `jetbrains.mps.lang.editor` cell models (`CellModel_RefNode`/`CellModel_RefNodeList`/`CellModel_RefCell`/`CellModel_Property`/`CellModel_Constant`), layout choices, and JSON blueprints for common editor shapes; also alternative editors selected by editor hints (`ConceptEditorContextHints`, `contextHints`, hinted component overrides, `addHints`/`removeHints`, `next applicable editor`, pushed hints). For the non-layout side (action maps, keymaps, transformation/substitute menus) use `mps-aspect-editor-menus-and-keymaps`.
+mps-aspect-generation-plan: Use when creating, editing, attaching, verifying or detaching an MPS generation plan — explicit ordering of generators (Transform / ApplyGenerators), checkpoints for cross-model reference resolution, forks with ParameterEquals conditions, IncludePlan composition, PlanContribution, InitModelAttributes for targetFacet routing. Covers attaching a @genplan model to models through a DevKit (exports + associated plan) or a Solution's Custom Generation facet with mps_mcp_update_module SET_GENERATION_PLAN, DevKit exports via mps_mcp_module_dependency, verifying with mps_mcp_generation PLAN, and maintaining plans (reorder, rename, extract, retarget) safely.
+mps-aspect-generator: Use when defining or modifying MPS generators — author a generator module, add or edit root/reduction/weaving/pattern mapping rules, attach template macros ($COPY_SRC, $LOOP, $IF, $PROPERTY, $REF, $SWITCH, $MAP_SRC, $WEAVE, $INSERT, $LABEL, $TRACE, $VAR), wire mapping labels, build template switches, write pre/post mapping scripts, navigate `genContext`, formalize the expected output as a `GeneratorTest`, inspect transient step models and trace nodes forward or back to see what a generator does, or debug "rule didn't fire", missing references, empty output, infinite reduction loops, and generated-Java compile failures.
+mps-aspect-intentions: Use when defining or editing MPS intentions (the Alt+Enter context-action aspect) — adding `IntentionDeclaration` roots, parameterized or surround-with variants, description/isApplicable/execute blocks, child-filter functions, factory-initialized AST splicing, or debugging why an intention is not offered. Lives in the language's `intentions` model and uses `jetbrains.mps.lang.intentions`.
+mps-aspect-migrations: Use when changing a language whose concepts already have instances (deciding whether a structure change is safe, deprecating instead of deleting, replacing a property, link or concept, moving the old values over) and when authoring or debugging MPS migration scripts that upgrade user models after a language definition changes — covers jetbrains.mps.lang.migration (MigrationScript class-based, PureMigrationScript declarative, MoveConcept/MoveContainmentLink/MoveReferenceLink/MoveProperty, ordering via OrderDependency, data exchange via putData/getData, RefactoringLog, ConceptMigrationReference) and jetbrains.mps.lang.script Enhancement Scripts (MigrationScript with MigrationScriptPart_Instance, ExtractInterfaceMigration, FactoryMigrationScriptPart, CommentMigrationScriptPart) — when a model needs version-gated upgrade, concept rename or removal, link or property rename, instance-level transformation, or composition of migration steps.
+mps-aspect-structure-concepts: Define concepts, interface concepts, enumerations, and constrained data types in an MPS language's `structure` aspect. Covers smart-reference detection, alias rules, cardinality, INamedConcept usage, bulk creation, and the full `mps_mcp_alter_structure` / `mps_mcp_query_structure` reference. Use when authoring or modifying a language's structure model.
+mps-aspect-textgen: Use when authoring or debugging MPS TextGen — concept-to-plain-text serialisation for languages whose final output is text (source files, config, scripts, DDL, XML, markdown). Covers `ConceptTextGenDeclaration` roots, `append` / `indent buffer` / `with indent` statements, text layout areas, context objects (e.g. imports sets), attributes, the base text gen component (`LanguageTextGenDeclaration`), binary `write`, `found error`, and the indentation-buffer model. Reach for this skill whenever the task involves editing `<lang>/languageModels/textGen.mps`.
+mps-aspect-typesystem: Use when authoring or debugging MPS typesystem — inference rules (`typeof :==: / :<=: / :>=:`), `SubtypingRule`, `ComparisonRule`, `InequationReplacementRule`, `SubstituteTypeRule`, `WhenConcreteStatement` blocks, `NonTypesystemRule` checking rules, `TypesystemQuickFix`, error/warning/info reports with `messageTarget` highlighting and quick-fix wiring (`helginsIntention`), and shared BaseLanguage helpers in the typesystem model. For questions to the compiled typesystem (`IS_SUBTYPE`, `EXPLAIN_TYPE`, `GET_EXPECTED_TYPE`), use the query tools when debugging “type stays undefined” or “operator cannot be applied.” Reach for this skill whenever the task involves editing `<lang>/languageModels/typesystem.mps`.
+mps-baselanguage: Author and edit MPS `jetbrains.mps.baseLanguage` (Java) nodes — choose between the Java parser and JSON AST blueprints, map Java syntax to baseLanguage concepts/roles, harvest persistent member references, and validate. Use when writing class/method bodies, fields, expressions, statements, or any Java/BaseLanguage code inside MPS models, especially when BaseLanguage extensions (smodel, closures, collections) are involved.
+mps-build-language: Use when authoring or modifying MPS Build Language scripts (`BuildProject` roots) — the declarative DSL that generates Ant `build.xml` to package MPS language plugins, plain Java modules, standalone IDE/RCP distributions, module tests, or `run code from solution` tasks. Covers build solution setup (wizard or manual), macros, project/external/Java dependencies, MPS module declarations (`BuildMps_Language` / `_Solution` / `_Generator`), groups, plugin declarations (`idea plugin` / `BuildMps_IdeaPlugin`), layouts, branding and startup scripts for standalone IDEs, MPS settings, and the workflow language. Trigger terms: `BuildProject`, `BuildMps_*`, `BuildLayout_*`, `jetbrains.mps.build`, `build.mps` solution, Build Solution wizard, `internalBaseDirectory`, `fileName`, Ant target generation, `mps_home`, `artifacts.mps`, `mpsStandalone`.
+mps-collections-and-closures: Use when writing or editing MPS BaseLanguage code that uses the `collections` and `closures` language extensions — in behavior methods, typesystem and checking rules, generator queries, constraints, intentions, plugin or console code, with or without nodes. Covers collection types (`sequence<T>`, `list<T>`, `set<T>`, `map<K,V>`, sorted variants), creators, sequence operations (`.where`, `.select`, `.translate`, `.any`, `.sortBy`, `.toList`, …), list/set/map mutators, the collections `foreach` vs the BaseLanguage `foreach`, closure literals (`{ it => ... }`, `ClosureLiteral`, `InferredClosureParameterDeclaration`, `FunctionType`), `yield`, `skip`, `stop`, recursion with `invoke`, SAM conversion, and `downcast` to a Java interface. The node receivers (`node.descendants<C>`, `nlist<C>`, `sequence<node<C>>`) come from the companion skill `mps-model-manipulation`; most smodel bodies need both.
+mps-console: Run or generate MPS Console code and `jetbrains.mps.lang.smodel.query` queries in MPS intentions, behavior, actions, generators, and BaseLanguage. Covers console commands, result printers, IDE operations, scripts, scoped node/model/module queries, and inserting, reading, recalling, or running commands through MPS MCP tools.
+mps-distribution-build: Use when bundling a new plain Java/Kotlin plugin into MPS distribution archives, debugging packaging/layout issues in `build/mps*.xml`, tracing where per-plugin artefacts end up, or editing `plugins/mps-build/solutions/mpsBuild/models/build.mps` (the source of truth that generates every `build/mps*.xml`). The skill covers the generated Ant pipeline, plugin-to-distribution wiring, and the per-plugin / aggregator / distribution layers.
+mps-dsl-memory: Create or refresh project-local DSL skills under `.agents/skills/<dsl-name>-dsl/` for one or more MPS languages after discovering concepts, sandbox examples, JSON blueprints, references, or gotchas.
+mps-ide-plugin: Use when authoring or modifying MPS IDE plugins — code that integrates with the MPS / IntelliJ host IDE shell. Covers ActionDeclaration, ActionGroupDeclaration, ToolDeclaration/TabbedToolDeclaration (dockable tool windows), KeymapChangesDeclaration (shortcuts), PreferencesComponentDeclaration (settings pages), EditorTab+Order (concept editor tabs), InterfaceGroup (bootstrap wrappers around external groups), NonDumbAwareActions, IdeaConfigurationXml, ApplicationPluginDeclaration/ProjectPluginDeclaration/StandalonePluginDescriptor (lifecycle hooks). Uses jetbrains.mps.lang.plugin and jetbrains.mps.lang.plugin.standalone. Trigger terms: action group, tool window, menu item, MainMenu, EditorPopup, NodeActions, ModelActions, ModuleActions, ProjectViewPopupMenu, MPS plugin solution, ActionInstance, ModificationStatement, DataKey, MPSCommonDataKeys, MPSDataKeys, dumb-aware, project.tool<...>, project.preferenceComponent<...>, application plugin<...>, project plugin<...>.
+mps-lang-core-xml: Use when authoring XML documents as MPS root nodes or building XML-generating generator templates with jetbrains.mps.core.xml — covers XmlFile, XmlDocument, prolog (XML declaration, DOCTYPE, processing instructions, comments), elements, attributes, CDATA, entity references, and macro attachment via the smodelAttribute role for templates that emit XML output.
+mps-language-analysis: Analyze an MPS language by name — discover concepts, properties, references, children, aspects (editor/constraints/behavior), metadata, and answer type questions (is A a subtype of B, common supertype, expected type of a slot, why a node has its type) with `mps_mcp_query_types`. Use when investigating an unfamiliar language, exploring concept structure, or finding sample nodes to use as templates for JSON blueprints.
+mps-language-aspects-overview: Entry point for authoring or modifying an MPS language — index of all aspects (structure, editor, constraints, behavior, typesystem, intentions, actions, generator, textgen, accessories, generation plans), the recommended authoring order, cross-aspect call patterns, dependency/rebuild rules, and validation flow. Start here when defining a new language or when you do not know which aspect-specific skill applies.
+mps-language-inheritance: Investigate inheritance between MPS languages and between concepts — extended languages, superconcepts, implemented interfaces, sub-/assignable concepts, and cross-language specialization. Use when tracing language hierarchies, finding extension points, or checking concept assignability.
+mps-language-modularity: Use when designing how multiple MPS languages relate or compose — choosing between language referencing, extension, reuse, and embedding, or deciding where a cross-language dependency should live and how generated code interacts. Covers the 2×2 modularity taxonomy adapted to MPS, a decision procedure, per-kind recipes (references + search scopes; subconcepting + overloaded operations; abstract hooks + adapter languages + separated/interwoven generation; guest + composition languages + type bridges), the annotations escape hatch, and per-kind validation. This is the design tier above the aspect-implementation skills: it picks the strategy, then routes into the relevant mps-aspect-* skills (structure, constraints, typesystem, generator, generation-plan, intentions) and mps-tests. Reach for it before authoring aspects, or whenever one language must see, extend, embed, or adapt another.
+mps-mcp-workflow: Complete JetBrains MPS workflow guide for DSL projects — models, languages, generators, node JSON blueprints, type queries, validation, MPS MCP tool usage, and the index of companion skills. Use whenever working in an MPS project, when AGENTS.md says to load the MPS workflow skill, or when you need to pick the right MPS aspect-specific skill.
+mps-model-manipulation: Use when writing or editing MPS BaseLanguage code that lives inside a model — behavior methods, typesystem rules, checking rules, generator queries, constraints, intentions, scope/canBe callbacks, dataflow builders — and uses the `smodel` language extension. Covers querying nodes (`.descendants<C>`, `.ancestor<C>`, `.children`, `.parent`, `containingRoot`, `.ofConcept<C>`), creating and mutating nodes (`new node<C>()`, `add new(C)`, `set new(C)`, `replace with new(C)`, `.detach`, `.copy`), property and link access (`SPropertyAccess`, `SLinkAccess`, `SLinkListAccess`), reference operations (`.reference/C : role/`, `.target`), a node, model or module known at design time (`node-ptr/…/.resolve(repo)`, `model-ptr/…/`, `module-reference/…/`), null-safe node equality (`:eq:` / `:ne:`), smodel/Java type casts (`node:C`, `node as C`, `/`), the `command` / `write action` / `read action` lock wrappers, and JSON blueprints for every shape the Java parser cannot produce. Collection operations and closures (`.where`, `.select`, `.translate`, `{ it => }`) are in the companion skill `mps-collections-and-closures`; most bodies need both.
+mps-node-editing: Add, update, or delete MPS nodes using JSON blueprints — covers the unified blueprint format, staged construction for large subtrees, validation, and reference repair. Use whenever creating, editing, or restructuring nodes in any MPS model (structure, editor, behavior, generator, application code, etc.).
+mps-project-management: Open an MPS project in a running or freshly started MPS instance when MCP tools fail because no project is open (welcome screen), close an open project with `mps_mcp_close_project`, or create a new empty MPS project headlessly. Covers MPS built from sources vs a standalone install, detecting which case you are in, macOS/Linux/Windows CLI activation, close timeout / force-close recovery, and empty project creation file templates. Use when `mps_mcp_*` is rejected with empty `Currently open projects`, when MPS shows the welcome screen, when an agent must open a project via the command line, when creating a new empty MPS project, or when closing a project.
+mps-quotations: Use when writing or debugging MPS quotations and anti-quotations — "node literals" that create SNode trees inline in behavior, typesystem, intentions, generator, and other model code. Covers heavy quotations (`Quotation`, `<...>`), light quotations (`NodeBuilder`, constructor-style for bootstrapping), and the four anti-quotation varieties: child (`%(...)%`), list (`*(...)*`), reference (`^(...)^`), property (`$(...)$`). Reach for this skill whenever the task involves splicing runtime values into quoted node trees or choosing between heavy and light quotations.
+mps-run-configurations: Create and execute IDE run configurations for MPS root nodes via MPS MCP — Java Application for `IMainClass` / `ClassConcept` with `main`, JUnit Tests for `ITestCase` and other discovered test roots such as `GeneratorTest`. Use when launching DSL `main`-like roots, plain BaseLanguage `ClassConcept` mains, or MPS test cases from a node; reusing or replacing an existing run config; diagnosing `ClassNotFoundException`, `compileInMPS=false`, or "not runnable through this tool" failures.
+mps-tests: Use when writing or modifying tests inside MPS `@tests` models — `NodesTestCase` (typesystem, constraints, scopes, dataflow), `GeneratorTest` (generator output against an expected model, match options, explicit generation plans), `EditorTestCase` (intentions, actions, keystrokes, side-transforms, completion), `MigrationTestCase` (migration scripts), `BTestCase` (plain JUnit on hand-written Java/Kotlin runtime), inline annotations such as `has error` / `has type` / `ScopesTest`, label-based `node<label>` cross-references, caret markers, and running tests via MCP / in MPS. Reach for this skill whenever the task involves authoring or fixing tests in a `tests`-stereotype model, or interpreting failures from one.
+nano-pdf: Edit text in existing PDFs via natural-language prompts.
+native-unit-tests: Write, review and run the GLib tests in jni/tests/ for the native layer (jni/src/): the ATK objects built for Swing components, JNI contracts, resource lifetime, -Xcheck:jni and the sanitizer build. Use together with the testing skill when changing jni/src/, and for native test failures and requests to add or fix native tests.
+nemo-curator: Curate LLM training data: dedupe, filter, PII redaction.
+neuroskill-bci: Use live BCI cognitive and mood state from NeuroSkill.
+node-inspect-debugger: Debug Node.js via --inspect + Chrome DevTools Protocol CLI.
+notebook-for-experiment: Create reproducible Jupyter notebooks for performance experiments.
+notion: Notion API + ntn CLI: pages, databases, markdown, Workers.
+obliteratus: OBLITERATUS: abliterate LLM refusals (diff-in-means).
+obsidian: Read, search, create, and edit notes in the Obsidian vault.
+ocr-and-documents: Extract text from PDFs/scans (pymupdf, marker-pdf).
+one-three-one-rule: 1-3-1 decision briefs: problem, three options, one pick.
+openclaw-migration: Import an OpenClaw setup (memories, skills) into Hermes.
+opencode: Delegate coding to OpenCode CLI (features, PR review).
+openhands: Delegate coding to OpenHands CLI (model-agnostic, LiteLLM).
+openhue: Control Philips Hue lights, scenes, rooms via OpenHue CLI.
+openspec-apply-change: Implement tasks from an OpenSpec change. Use when the user wants to start implementing, continue implementation, or work through tasks. Also use when the user says "openspec apply", "opsx apply", or "openspec implement".
+openspec-archive-change: Archive a completed OpenSpec change in the experimental workflow. Use when the user wants to finalize and archive a change after implementation is complete. Also use when the user says "openspec archive" or "opsx archive".
+openspec-explore: Enter OpenSpec explore mode - a thinking partner for exploring ideas, investigating problems, and clarifying requirements in a project that uses OpenSpec. Use when the user wants to think through something before or during an OpenSpec change. Also use when the user says "openspec explore" or "opsx explore".
+openspec-propose: Propose a new OpenSpec change with all artifacts generated in one step. Use when the user wants to quickly describe what they want to build and get a complete proposal with design, specs, and tasks ready for implementation. Also use when the user says "openspec propose" or "opsx propose".
+openspec-sync-specs: Sync delta specs from an OpenSpec change to main specs. Use when the user wants to update main specs with changes from a delta spec, without archiving the change. Also use when the user says "openspec sync" or "opsx sync".
+openspec-update-change: Update an OpenSpec change by revising its existing planning artifacts and keeping them coherent with one another. Use when the user wants to revise a change's plan, fold new decisions into it, or reconcile its artifacts after an edit. Also use when the user says "openspec update change" or "opsx update". If the user means the openspec update CLI command, which refreshes generated files, run that command instead. Never edits code.
+org-search: Experimental jbcontext org-wide semantic search across multiple repositories
+osint-investigation: Follow the money via public records and sanctions data.
+oss-forensics: GitHub supply-chain forensics: recovery, IOCs, reporting.
+outlines: Outlines: structured JSON/regex/Pydantic LLM generation.
+p5js: p5.js sketches: gen art, shaders, interactive, 3D.
+page-agent: Embed an in-page natural-language GUI copilot in web apps.
+parallel-cli: Agent-native web search, deep research, and enrichment.
+pdf: Create, read, merge, fill, and secure PDF files.
+peft: Fine-tune large LLMs with LoRA on limited GPU memory.
+pinecone-research: Agent RAG and long-term memory with Pinecone.
+pinecone: Managed vector DB for production RAG and search.
+pinggy-tunnel: Zero-install localhost tunnels over SSH via Pinggy.
+pixel-art: Pixel art w/ era palettes (NES, Game Boy, PICO-8).
+plan: Write a markdown plan to .hermes/plans/; no execution.
+platform-coroutines-structured-concurrency: Write or review IntelliJ coroutine scope ownership and cancellation.
+plugin-model-analyzer: Query IntelliJ Product DSL modules, products, and plugin graphs.
+pokemon-player: Play Pokemon via headless emulator + RAM reads.
+poly-symbols: Implement PolySymbols completion, references, rename, and PolyContext feature gating.
+polymarket: Query Polymarket: markets, prices, orderbooks, history.
+popular-web-designs: 54 real design systems (Stripe, Linear, Vercel) as HTML/CSS.
+powerpoint: Create, read, edit .pptx decks with python-pptx.
+pptx-author: Build PowerPoint decks headless with python-pptx.
+pr-full-review: Review an AnkiDroid pull request or branch against AnkiDroid's conventions.
+pretext: Build creative browser demos with DOM-free text layout.
+product-price-monitor: Watch product, flight, or listing prices; alert on target.
+pseudo-kmp: Create or modify IntelliJ pseudo-KMP expect/actual modules.
+publish: Publish a Harbor task or dataset to the registry. Use when the user wants to upload, publish, or share tasks or datasets/benchmarks on the Harbor registry.
+py-code-insight-counters: Count Python code insight work in tests with PyCodeInsightCounters.
+python-debugpy: Debug Python: pdb REPL + debugpy remote (DAP).
+pytorch-fsdp: Fully sharded data-parallel training for large models.
+pytorch-lightning: Clean training loops with built-in distributed support.
+qdrant: Vector search engine for production RAG systems.
+qmd: Hybrid local search over notes, docs, and transcripts.
+refactor-jvm-jb: Apply IDE refactorings to Java and Kotlin code. Supported operations include rename. Use whenever a request needs a supported operation, even without naming this skill or as part of a larger task. Rename requests include "rename X to Y", "change the class name", and renaming a method, field, or variable with its usages. Exclude plain text replacement and operations not listed here.
+registry: Guidelines for using the IntelliJ Registry API. Use when working with registry keys or feature flags.
+registry: Use the IntelliJ Registry API for registry keys and feature flags.
+requesting-code-review: Pre-commit review: security scan, quality gates, auto-fix.
+research-paper-writing: Write ML papers for NeurIPS/ICML/ICLR: design→submit.
+rest-graphql-debug: Debug REST/GraphQL APIs: status codes, auth, schemas, repro.
+review-ij-perf: Review JetBrains/ij-perf-report-aggregator (ij-perf) pull requests, commit ranges, and local diffs for concrete correctness, performance-data integrity, operational, security, and maintenance risks. Use for initial and follow-up ij-perf code reviews, merge-readiness checks, or a requested GitHub verdict with inline comments. Covers Go collection/API/detection, ClickHouse, PostgreSQL metadata, Vue/TypeScript dashboards, and LLM-analysis integrations. Honor preview-only requests; an explicit invocation for an open PR defaults to submitting the review.
+rewardkit: Write Harbor task verifiers using Reward Kit. Use when creating or editing a task's tests/ directory, adding grading criteria, setting up LLM/agent judges, or designing verifiers that produce a reward score.
+runtime-proof: Write the proof file for the Harbor runtime skill injection example.
+rust-code-style: Write or review Rust in the build tools.
+saelens: Train sparse autoencoders to interpret model features.
+safe-push: Push IntelliJ repository changes through Safe Push.
+scrapling: Scrape sites with stealth browsing and Cloudflare bypass.
+sdlc-review: Review Kanban handoffs and route verified outcomes.
+searxng-search: Free keyless meta-search aggregating 70+ engines.
+segment-anything-model: SAM: zero-shot image segmentation via points, boxes, masks.
+serving-llms-vllm: vLLM: high-throughput LLM serving, OpenAI API, quantization.
+session-librarian: Organize sessions by prompt: find, rename, archive, prune.
+settings-v2-migration: Move PSC to settings v2.
+sherlock: Find accounts for a username across 400+ platforms.
+shop: Shop catalog search, checkout, order tracking, returns.
+shopify: Query Shopify Admin/Storefront GraphQL APIs via curl.
+simplify-code: Parallel 4-agent cleanup of recent code changes.
+simpo: Reference-free preference alignment, simpler than DPO.
+siyuan: Query and edit a SiYuan knowledge base via its API.
+sketch: Throwaway HTML mockups: 2-3 design variants to compare.
+skill-optimization-study: Re-runnable measurement loop for agent-driven JetBrains MPS work over mps_mcp_* tools — baseline headless worker runs on fixed scenarios, server call log + transcripts, hotspot ranking, remedy classification (docs / server tool / offline script / online script / template), optional A/B. Use when tool descriptions or mps-* skills changed, before a release, or when agents seem slow or retry-prone on MPS tasks.
+slime: RL post-training for LLMs with Megatron and SGLang.
+social-media-content-calendar: Plan multi-platform social campaigns: briefs to posting.
+solana: Query Solana wallets, tokens, txs, and NFTs in USD.
+songsee: Audio spectrograms/features (mel, chroma, MFCC) via CLI.
+songwriting-and-ai-music: Songwriting craft and Suno AI music prompts.
+spike: Throwaway experiments to validate an idea before build.
+ssr: Create or modify IntelliJ Structural Search and Replace patterns.
+ssr: Guide for using Structural Search and Replace in IntelliJ. Use when creating or modifying SSR inspections or search patterns.
+stable-diffusion: Text-to-image generation, inpainting, and img2img.
+stocks: Stock quotes, history, search, compare, crypto via Yahoo.
+stripe-link-cli: Agent payments via Stripe Link — cards, SPT, approvals.
+stripe-projects: Provision SaaS services + sync creds via Stripe Projects.
+study-run-cleanup: Clean old MPS skill-study scratch projects under ~/MPSProjects/mcp-study. Use when the user asks to clean, prune, or reclaim disk from old run projects, proj-r directories, or archive/workspace. Not for transcripts, and not part of a measurement round.
+subagent-driven-development: Execute plans via delegate_task subagents (2-stage review).
+symbols-api: Use IntelliJ Symbol API for declarations, references, and rename.
+sync-upstream-release: Merge a selected azure-tools-for-java release branch into the Azure Toolkit fork, update its upstream-release metadata and changelog, then open a pull request.
+systematic-debugging: 4-phase root cause debugging: understand bugs before fixing.
+teamcity-cli: Use when working with TeamCity CI/CD or when user provides a TeamCity build URL. Use `teamcity` CLI for builds, logs, jobs, queues, agents, and pipelines.
+teams-meeting-pipeline: Teams meeting summaries, job replay, Graph subscriptions.
+telephony: Provision Twilio numbers, SMS/MMS, and AI outbound calls.
+tensorrt-llm: High-throughput LLM inference on NVIDIA GPUs.
+test-docs: Write or review the documentation of tests in wrapper/test/, jni/tests/ and tests/atspi/: what a test checks, why, and when to revisit it. Use when adding tests, changing assertions, documenting or explaining tests, changing wrapper behavior, or removing a workaround that existing tests document.
+test-driven-development: TDD: enforce RED-GREEN-REFACTOR, tests before code.
+testing: Decide whether a change to the Java ATK Wrapper needs tests and at which layer, and prove that the tests protect the fix. Use whenever a change needs tests, or tests are written, reviewed or run, before the skill of a layer: java-unit-tests, native-unit-tests or atspi-integration-tests.
+testing: Run or troubleshoot IntelliJ tests with `bt.cmd` or `tests.cmd`.
+tests-maintenance: Maintains IdeaVim test suite quality. Reviews disabled tests, ensures Neovim annotations are documented, and improves test readability. Use for periodic test maintenance.
+tldraw-offline: Drive and script tldraw offline canvases with an agent.
+torchtitan: Pretrain LLMs at scale with PyTorch 4D parallelism.
+touchdesigner-mcp: Control TouchDesigner via twozero MCP.
+trl-fine-tuning: TRL: SFT, DPO, GRPO, RLOO reward modeling for LLM RLHF.
+ui-accessibility: Review IntelliJ UI accessibility for keyboard, focus, and labels.
+unbroker: Autonomously remove your info from data-broker sites.
+unreal-mcp: Automate Unreal Engine editor scenes, actors, and renders.
+unsloth: Unsloth: 2-5x faster LoRA/QLoRA fine-tuning, less VRAM.
+update-aspire: Update Aspire version across CI, NuGet constants, proto file, and all test/sample projects
+update-intellij-sdk-eap: Update Azure Toolkit for Rider to the newest Rider EAP in a selected release line, then build and repair clear SDK-upgrade regressions.
+update-intellij-sdk-eap: Update this Aspire plugin to the newest Rider and IntelliJ IDEA EAPs for a user-selected release line, then build and repair clear SDK-upgrade regressions.
+upload-parity-experiments: Create or reuse Hugging Face dataset PRs for `harborframework/parity-experiments` and upload Harbor parity/oracle result folders efficiently with sparse checkout, raw git pushes, and Git LFS.
+use-modern-go: Use the Modern Go Guidelines CLI whenever writing, modifying, fixing, or refactoring Go code. Apply its version-specific guidance to generated changes.
+verify-code-quality: Run lint, static analysis, ABI validation and coverage gates for compose-swing-ui. Use when checking code quality, fixing style issues, or before committing.
+wasm-inspector: Use when inspecting or reasoning about a WebAssembly binary or component (.wasm) — imports/exports, functions, memories, globals, tables, element/data segments, ABI or API diffs between two builds, crash-frame triage from a stack trace, host/supply-chain import audits, memory and global-state policy checks, data-segment payload checks, or entry-point effects. Drives the bundled Hexana MCP server, which extracts ground-truth structure directly from the binary (prefer it over shell tools like objdump/strings/hexdump for any .wasm fact).
+watchers: Poll RSS, JSON APIs, and GitHub with watermark dedup.
+web-pentest: Authorized web pentest: recon, proof-based exploits, report.
+weekly-review-planning: Weekly reset: commitments, stalled work, next-week plan.
+weights-and-biases: W&B: log ML experiments, sweeps, model registry, dashboards.
+whisper: Transcribe and translate speech in 99 languages.
+writing-commit-messages: Writes Git commit messages. Activates when the user asks to write a commit message, draft a commit message, or similar.
+writing-tests: Write IntelliJ JUnit 5 tests with fixtures, lifecycle, and EDT.
+xlsx: Create, read, edit Excel .xlsx workbooks and CSVs.
+xurl: X/Twitter via xurl CLI: raw post search, posting, DM, media.
+youtrack-community: YouTrack CLI for a community checkout; the monorepo uses `youtrack`.
+youtube-content: YouTube transcripts to summaries, threads, blogs.
+yuanbao: Yuanbao (元宝) groups: @mention users, query info/members.

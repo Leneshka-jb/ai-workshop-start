@@ -17,6 +17,7 @@ Set `GITHUB_TOKEN` for a higher GitHub rate limit. `npm test` runs the tests.
 
 `./skill-atlas serve` opens a web view on http://localhost:3000: paste a GitHub repository link to see its skills, optionally filtered by name or description,
 or an organization link (`https://github.com/<owner>`) to list its repositories with the number of skills in each.
+*Clasterize* groups the JetBrains skills saved in [data/jetbrainsSkills.txt](data/jetbrainsSkills.txt) by the words they share.
 
 - [spec/](spec/): what it does. [AGENTS.md](AGENTS.md): the definition of done.
 - [fixture/](fixture/README.md): a small repository for the tests.

@@ -15,6 +15,7 @@ They follow [spec/](../spec/); the automated tests in [tests/](../tests/) cover 
 | [08-host-check.md](08-host-check.md) | DNS-rebinding protection (`Host` check) |
 | [09-github-action.md](09-github-action.md) | The issue-comment workflow |
 | [10-web-project.md](10-web-project.md) | Web view: choosing a project |
+| [11-web-clusters.md](11-web-clusters.md) | Web view: clusters of the saved skills |
 
 ## Before you start
 - Node.js 24 or newer, `git`, `curl`, a browser.

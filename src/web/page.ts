@@ -1,4 +1,4 @@
-// The page the web view serves: a link, then a table of the skills under a filter applied as you type and a project choice,
+// The page the web view serves: a link and the clusters of the saved skills, then a table of the skills under a filter applied as you type and a project choice,
 // or a table of an organization's repositories.
 // Plain DOM, text only, no innerHTML for anything that came from a repository.
 export const PAGE = `<!doctype html>
@@ -42,15 +42,35 @@ export const PAGE = `<!doctype html>
   td.count { color: var(--muted); white-space: nowrap; }
   td.action { width: 1%; }
   td.action button { padding: .25rem .7rem; font-size: .85rem; }
+  .bar { display: flex; gap: .5rem; }
+  .bar form { flex: 1; min-width: 0; }
+  #clusterize { background: transparent; color: var(--accent); }
+  #clusters { margin-top: 1rem; padding: .8rem 1rem 1rem; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+  #clusters[hidden] { display: none; }
+  .clusters-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .6rem; color: var(--muted); font-weight: 600; }
+  .clusters-head button { padding: .25rem .7rem; font-size: .85rem; }
+  #clusters-status.error { color: #d33; }
+  #cluster-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: .6rem; }
+  .cluster { padding: .5rem .6rem; border: 1px solid var(--line); border-radius: 8px; background: var(--stripe); }
+  .cluster h3 { margin: 0 0 .4rem; font-size: .85rem; color: var(--accent); }
+  .cluster ul { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: .25rem; }
+  .cluster li { font: .75rem ui-monospace, monospace; padding: .1rem .4rem; border-radius: 4px; background: var(--accent-soft); color: var(--accent); cursor: default; }
   details { margin-top: 1rem; color: #b80; font-size: .9rem; }
 </style>
 </head>
 <body>
 <h1>Skill Atlas</h1>
+<div class="bar">
 <form id="form">
   <input id="repo" name="repo" type="url" required placeholder="https://github.com/owner/repo or https://github.com/owner" aria-label="Repository or organization link">
   <button type="submit">Scan</button>
 </form>
+<button id="clusterize" type="button">Clasterize</button>
+</div>
+<section id="clusters" aria-label="Clusters of the saved skills" hidden>
+  <div class="clusters-head"><span id="clusters-status" role="status"></span><button id="clusters-hide" type="button">Hide</button></div>
+  <div id="cluster-list"></div>
+</section>
 <div id="status" role="status"></div>
 <input id="filter" name="filter" type="search" placeholder="Filter by name or description" aria-label="Filter skills" autocomplete="off" hidden>
 <select id="project" name="project" aria-label="Project" hidden></select>
@@ -104,6 +124,28 @@ $('form').addEventListener('submit', async (event) => {
 
 $('filter').addEventListener('input', () => { if (scanned) show(); });
 $('project').addEventListener('change', () => { if (scanned) show(); });
+
+/** The saved skills, clustered by the server: shown under the link form; a scan leaves them as they are. */
+$('clusterize').addEventListener('click', async () => {
+  const head = $('clusters-status');
+  head.className = '';
+  head.textContent = 'Clustering…';
+  $('cluster-list').replaceChildren();
+  $('clusters').hidden = false;
+  $('clusterize').disabled = true;
+  try {
+    const response = await fetch('/api/clusters');
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error);
+    showClusters(result);
+  } catch (error) {
+    head.className = 'error';
+    head.textContent = error.message;
+  } finally {
+    $('clusterize').disabled = false;
+  }
+});
+$('clusters-hide').addEventListener('click', () => { $('clusters').hidden = true; });
 
 const count = (n) => n + (n === 1 ? ' skill' : ' skills');
 
@@ -211,6 +253,26 @@ function show() {
   }
   $('table').hidden = skills.length === 0;
   showWarnings(warnings);
+}
+
+/** N skills · M clusters, then each cluster with its skill names, the description on hover; the unclustered last. */
+function showClusters({ total, clusters, unclustered }) {
+  $('clusters-status').textContent = count(total) + ' · ' + clusters.length + (clusters.length === 1 ? ' cluster' : ' clusters');
+  const group = (title, skills) => {
+    const box = el('div');
+    box.className = 'cluster';
+    const names = el('ul');
+    for (const skill of skills) {
+      const item = el('li', skill.name);
+      item.title = skill.description;
+      names.append(item);
+    }
+    box.append(el('h3', title + ' · ' + count(skills.length)), names);
+    return box;
+  };
+  const groups = clusters.map((cluster) => group(cluster.word, cluster.skills));
+  if (unclustered.length) groups.push(group('Unclustered', unclustered));
+  $('cluster-list').replaceChildren(...groups);
 }
 
 function showWarnings(warnings) {
