@@ -6,6 +6,7 @@
 After a repository scan, the page shows the header described in [Filter](#filter), the filter input and the [project](#project) selector under it, then a table of the skills as in [analysis](analysis.md):
 - Columns **Name**, **Description**, **Links**; one row per skill: its name, the full description (empty if none), and every **link**, labelled with its path, opening the pinned GitHub file
 - Styled: coloured column headings, striped and highlighted rows, links as path labels; follows the system light or dark theme
+- Fits a narrow (phone-sized) screen, where the page never scrolls sideways. Under `40rem` wide, a table (skills or repositories) shows each row as a block of its cells, one under another, with no heading row; in the skills table, **Description** and **Links** are labelled over their cells. Under `64rem` wide, a long name wraps instead of widening the table; at any width, a link label keeps its path whole on one line when it fits and otherwise breaks only where it must
 - No skills to show (none found, or none matching) → no table
 - Same grouping and order as the CLI; warnings in a collapsed list below the skills
 - Any error replaces the result with its message
