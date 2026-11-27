@@ -14,6 +14,7 @@ They follow [spec/](../spec/); the automated tests in [tests/](../tests/) cover 
 | [07-web-api.md](07-web-api.md) | HTTP API: status codes and JSON |
 | [08-host-check.md](08-host-check.md) | DNS-rebinding protection (`Host` check) |
 | [09-github-action.md](09-github-action.md) | The issue-comment workflow |
+| [10-web-project.md](10-web-project.md) | Web view: choosing a project |
 
 ## Before you start
 - Node.js 24 or newer, `git`, `curl`, a browser.

@@ -25,8 +25,10 @@ Spec: [web.md](../spec/web.md).
 
 **Expected**
 - While scanning: `Scanning…`, the button is disabled.
-- Then the header `JetBrains/kotlin · N skills`, a small filter input under it, and one card per skill, in the CLI's order (compare with 03 · 3.1):
-  the name as a heading, the **full** description (not just the first sentence), and each link labelled with its path.
+- Then the header `JetBrains/kotlin · N skills`, a small filter input under it (and the project selector, see 10), and a table with
+  coloured headings **Name · Description · Links**, one striped row per skill, in the CLI's order (compare with 03 · 3.1):
+  the name, the **full** description (not just the first sentence), and each link as a label with its path.
+- The table follows the system light/dark theme; rows highlight on hover.
 - Clicking a link opens the pinned file on GitHub in a new tab.
 
 ## 4.4 Enter also submits

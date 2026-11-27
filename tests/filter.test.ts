@@ -32,6 +32,14 @@ const GITHUB = replay({
     'skills/broken/SKILL.md': '---\nname: [unclosed\n---\nrelease\n',
   }),
   ...repository('JetBrains/empty', {}),
+  // A repository of several projects: the root, two plugins sharing one skill, and a tool.
+  ...repository('JetBrains/mono', {
+    '.agents/skills/setup/SKILL.md': '---\nname: setup\ndescription: Set up the whole repository.\n---\n',
+    'plugins/kotlin/.claude/skills/gradle/SKILL.md': '---\nname: gradle\ndescription: Build the Kotlin plugin.\n---\n',
+    'plugins/kotlin/.claude/skills/review/SKILL.md': '---\nname: review\ndescription: Review a plugin change.\n---\n',
+    'plugins/java/skills/review/SKILL.md': '---\nname: review\ndescription: Review a plugin change.\n---\n',
+    'tools/lint/SKILL.md': '---\nname: lint\ndescription: Lint the sources.\n---\n',
+  }),
 });
 
 const BROKEN_WARNING = 'skills/broken/SKILL.md: malformed front matter: Flow sequence in block collection must be sufficiently indented and end with a ] at line 2, column 16; using the directory name';
@@ -121,8 +129,11 @@ async function open(base: string, repo: string, filter = '') {
     form: new Node('form', { button: new Node('button') }),
     repo: new Node('input'),
     filter: new Node('input'),
+    project: new Node('select'),
     status: new Node('div'),
-    skills: new Node('div'),
+    table: new Node('table'),
+    columns: new Node('tr'),
+    skills: new Node('tbody'),
     warnings: new Node('details', { summary: new Node('summary'), ul: new Node('ul') }),
   };
   const document = { getElementById: (id: string) => nodes[id], createElement: (tag: string) => new Node(tag) };
@@ -237,4 +248,105 @@ test('page: no skills even before filtering → `No skills found`, with or witho
       status: 'JetBrains/empty · No skills found', error: false, skills: [], warnings: '',
     }, filter);
   }
+});
+
+/** Chooses a project in the page's selector, as the user would. */
+function choose(nodes: Record<string, Node>, project: string) {
+  nodes.project.value = project;
+  nodes.project.listeners.change?.({ preventDefault() {} });
+}
+
+/** Each row of the table as its cells: name, description and the link paths. */
+const rows = (nodes: Record<string, Node>) => nodes.skills.children.map((row) => [
+  row.children[0].textContent,
+  row.children[1].textContent,
+  row.children[2].children[0].children.map((item) => item.children[0].textContent),
+]);
+
+test('GET / → the skills go in a table, and the project selector sits next to the filter, hidden', async (t) => {
+  const html = await (await fetch(await serve(t))).text();
+  assert.match(html, /<input id="filter"[^>]*hidden>\n<select id="project"[^>]*hidden><\/select>/);
+  assert.match(html, /<table id="table" hidden><thead><tr id="columns"><\/tr><\/thead><tbody id="skills"><\/tbody><\/table>/);
+});
+
+test('page: a table with the columns Name, Description and Links, one row per skill', async (t) => {
+  const { nodes } = await open(await serve(t), 'https://github.com/JetBrains/many');
+  assert.equal(nodes.table.hidden, false);
+  assert.deepEqual(nodes.columns.children.map((th) => th.textContent), ['Name', 'Description', 'Links']);
+  assert.deepEqual(rows(nodes)[0], ['Release-Notes', 'Draft the changelog for a version.', ['skills/release/SKILL.md']]);
+  const link = nodes.skills.children[0].children[2].children[0].children[0].children[0];
+  assert.equal(link.href, `https://github.com/JetBrains/many/blob/${COMMIT}/skills/release/SKILL.md`);
+  assert.equal(link.target, '_blank');
+});
+
+test('page: no rows → no table', async (t) => {
+  const base = await serve(t);
+  assert.equal((await open(base, 'https://github.com/JetBrains/empty')).nodes.table.hidden, true);
+  const many = await open(base, 'https://github.com/JetBrains/many');
+  many.type('deploy');
+  assert.equal(many.nodes.table.hidden, true);
+  many.type('');
+  assert.equal(many.nodes.table.hidden, false);
+});
+
+test('page: a repository of one project → no project selector', async (t) => {
+  const { nodes } = await open(await serve(t), 'https://github.com/JetBrains/many');
+  assert.equal(nodes.project.hidden, true);
+});
+
+test('page: several projects → a selector of every project, the root first, with its number of skills', async (t) => {
+  const { nodes, seen } = await open(await serve(t), 'https://github.com/JetBrains/mono');
+  assert.equal(nodes.project.hidden, false);
+  assert.deepEqual(nodes.project.children.map((option) => [option.value, option.textContent]), [
+    ['', 'All projects'],
+    ['.', '(repository root) · 1 skill'],
+    ['plugins/java', 'plugins/java · 1 skill'],
+    ['plugins/kotlin', 'plugins/kotlin · 2 skills'],
+    ['tools', 'tools · 1 skill'],
+  ]);
+  assert.equal(nodes.project.value, '');
+  assert.equal(seen().status, 'JetBrains/mono · 4 skills');
+});
+
+test('page: choosing a project lists its skills only, with their links in it, without scanning again', async (t) => {
+  const { nodes, seen, requested } = await open(await serve(t), 'https://github.com/JetBrains/mono');
+  choose(nodes, 'plugins/kotlin');
+  assert.equal(seen().status, 'JetBrains/mono · plugins/kotlin · 2 skills');
+  assert.deepEqual(rows(nodes), [
+    ['gradle', 'Build the Kotlin plugin.', ['plugins/kotlin/.claude/skills/gradle/SKILL.md']],
+    ['review', 'Review a plugin change.', ['plugins/kotlin/.claude/skills/review/SKILL.md']],
+  ]);
+  choose(nodes, 'plugins/java');
+  assert.deepEqual(rows(nodes), [['review', 'Review a plugin change.', ['plugins/java/skills/review/SKILL.md']]]);
+  choose(nodes, '.');
+  assert.equal(seen().status, 'JetBrains/mono · (repository root) · 1 skill');
+  assert.deepEqual(seen().skills, ['setup']);
+  choose(nodes, '');
+  assert.equal(seen().status, 'JetBrains/mono · 4 skills');
+  assert.deepEqual(rows(nodes).find((row) => row[0] === 'review')![2], [
+    'plugins/java/skills/review/SKILL.md', 'plugins/kotlin/.claude/skills/review/SKILL.md',
+  ]);
+  assert.equal(requested.length, 1);
+});
+
+test('page: the filter applies within the chosen project', async (t) => {
+  const { nodes, type } = await open(await serve(t), 'https://github.com/JetBrains/mono');
+  choose(nodes, 'plugins/kotlin');
+  assert.equal(type('review').status, 'JetBrains/mono · plugins/kotlin · 1 of 2 skills');
+  assert.equal(type('lint').status, 'JetBrains/mono · plugins/kotlin · No matching skills');
+  choose(nodes, 'tools');
+  assert.deepEqual(type('lint').skills, ['lint']);
+});
+
+test('page: another scan goes back to every project; an error or an organization hides the selector', async (t) => {
+  const { nodes, seen } = await open(await serve(t), 'https://github.com/JetBrains/mono');
+  choose(nodes, 'tools');
+  await nodes.form.listeners.submit({ preventDefault() {} });
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.equal(nodes.project.value, '');
+  assert.equal(seen().status, 'JetBrains/mono · 4 skills');
+  nodes.repo.value = 'https://gitlab.com/owner/repo';
+  await nodes.form.listeners.submit({ preventDefault() {} });
+  assert.equal(nodes.project.hidden, true);
+  assert.equal(nodes.table.hidden, true);
 });
