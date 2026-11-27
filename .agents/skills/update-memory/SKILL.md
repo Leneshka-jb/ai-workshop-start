@@ -14,6 +14,7 @@ Save a memory entry only when information is **durable** and **actionable**:
 - Recurring pitfalls or fixes verified during work.
 
 Do **not** save:
+- User input being added to a skill, `AGENTS.md`, or another file that configures or instructs agents; keep it in that file without duplicating it in memory.
 - Temporary debug output, one-off commands, or unverified guesses.
 - Secrets, API keys, passwords, or sensitive personal data.
 
