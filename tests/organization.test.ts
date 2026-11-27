@@ -308,3 +308,18 @@ test('the page: warnings are collapsed on every new result, even after the last 
     assert.equal(warnings.open, false, `collapsed again after scanning ${input}`);
   }
 });
+
+test('the page: typing in the filter or choosing a project leaves expanded warnings expanded', async () => {
+  const warned = { ...SCAN, warnings: ['skills/broken/SKILL.md: malformed front matter'] };
+  const { elements } = await page('https://github.com/Acme/agents', () => warned);
+  const warnings = elements.warnings;
+  warnings.open = true; // the user expands the list
+  elements.filter.value = 'x';
+  for (const listener of elements.filter.listeners.input) listener({ preventDefault() {} });
+  assert.equal(warnings.open, true, 'still expanded after typing in the filter');
+  assert.equal(warnings.hidden, false);
+  elements.project.value = '.';
+  for (const listener of elements.project.listeners.change) listener({ preventDefault() {} });
+  assert.equal(warnings.open, true, 'still expanded after choosing a project');
+  assert.equal(warnings.hidden, false);
+});

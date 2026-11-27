@@ -9,6 +9,7 @@ After a repository scan, the page shows the header described in [Filter](#filter
 - No skills to show (none found, or none matching) → no table
 - Same grouping and order as the CLI; warnings in a collapsed list below the skills
 - Every new result, repository or organization, shows its warnings collapsed, even if the user expanded those of the previous one
+- Typing in the filter or choosing a project is not a new result: the warnings stay expanded or collapsed as the user left them
 - Any error replaces the result with its message
 
 An organization link (`https://github.com/<owner>`, one path segment) lists its repositories instead, as in [analysis](analysis.md#organization):
